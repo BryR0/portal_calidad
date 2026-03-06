@@ -1,0 +1,1009 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva NC{% endblock %}
+{% block breadcrumb %}Nueva No Conformidad{% endblock %}
+{% block page_title %}Nueva No Conformidad{% endblock %}
+
+{% block extra_css %}
+<style>
+.nc-shell {
+    max-width: 1480px;
+    margin: 0 auto;
+    color: #111827;
+    text-rendering: optimizeLegibility;
+}
+
+.section-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 1.3rem;
+    background: #ffffff;
+    box-shadow: 0 18px 35px -32px rgba(15, 23, 42, 0.45);
+}
+
+.section-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.95rem;
+    padding: 1.3rem 1.3rem 0.95rem;
+}
+
+.section-head > div:last-child {
+    min-width: 0;
+}
+
+.step-badge {
+    flex: none;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    box-shadow: 0 16px 30px -20px rgba(79, 70, 229, 0.9);
+}
+
+.section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #6366f1;
+    font-size: 0.79rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.section-title {
+    margin-top: 0.25rem;
+    color: #111827;
+    font-size: 1.28rem;
+    line-height: 1.32;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.section-copy {
+    margin-top: 0.45rem;
+    color: #4b5563;
+    font-size: 0.97rem;
+    line-height: 1.75;
+    max-width: 52rem;
+}
+
+.section-body {
+    padding: 0 1.3rem 1.3rem;
+}
+
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.field-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.field-span-full {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+    font-size: 0.93rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.field-help {
+    margin-top: 0.42rem;
+    color: #6b7280;
+    font-size: 0.82rem;
+    line-height: 1.65;
+}
+
+.req {
+    color: #ef4444;
+    margin-left: 0.15rem;
+}
+
+.soft-panel {
+    margin-top: 1rem;
+    padding: 1rem 1.05rem;
+    border-radius: 1rem;
+    border: 1px dashed #c7d2fe;
+    background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+}
+
+.soft-panel-title {
+    color: #3730a3;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.soft-panel-copy {
+    margin-top: 0.45rem;
+    color: #4b5563;
+    font-size: 0.9rem;
+    line-height: 1.65;
+}
+
+.choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.choice-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    background: #ffffff;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.choice-card:hover {
+    border-color: #c7d2fe;
+    background: #f8faff;
+}
+
+.choice-card:has(input:checked) {
+    border-color: #6366f1;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px #e0e7ff;
+}
+
+.choice-card input {
+    margin-top: 0.18rem;
+}
+
+.choice-card-title {
+    color: #111827;
+    font-size: 0.95rem;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.choice-card-note {
+    display: block;
+    margin-top: 0.26rem;
+    color: #4b5563;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.pill-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #ffffff;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pill-option:has(input:checked) {
+    border-color: #6366f1;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px #e0e7ff;
+}
+
+.pill-option span {
+    color: #374151;
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.impact-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.impact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    background: #ffffff;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.impact-item:hover {
+    border-color: #c7d2fe;
+}
+
+.impact-item:has(input:checked) {
+    border-color: #818cf8;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px #e0e7ff;
+}
+
+.impact-item span {
+    color: #374151;
+    font-size: 0.91rem;
+    line-height: 1.6;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.aside-stack {
+    position: sticky;
+    top: 5.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.aside-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 1.2rem;
+    background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+    padding: 1.05rem;
+    box-shadow: 0 16px 35px -34px rgba(15, 23, 42, 0.6);
+}
+
+.aside-title {
+    color: #111827;
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.aside-copy {
+    margin-top: 0.35rem;
+    color: #4b5563;
+    font-size: 0.88rem;
+    line-height: 1.65;
+}
+
+.checklist {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 0.95rem;
+}
+
+.check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    color: #4b5563;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.check-icon {
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef2ff;
+    color: #4338ca;
+    margin-top: 0.02rem;
+}
+
+.submit-panel {
+    border: 1px solid #dbeafe;
+    border-radius: 1.2rem;
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+    padding: 1.15rem;
+}
+
+.submit-note {
+    margin-top: 0.85rem;
+    color: #4b5563;
+    font-size: 0.86rem;
+    line-height: 1.65;
+}
+
+.product-status {
+    margin-top: 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.product-status.hidden {
+    display: none;
+}
+
+.description-box {
+    min-height: 8.5rem;
+}
+
+.mini-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.8rem;
+}
+
+.mini-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.nc-shell .input-field,
+.nc-shell .select-field,
+.nc-shell .textarea-field {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+.nc-shell .input-field::placeholder,
+.nc-shell .textarea-field::placeholder {
+    color: #9ca3af;
+}
+
+.nc-shell .font-mono {
+    letter-spacing: -0.01em;
+}
+
+@media (max-width: 1279px) {
+    .aside-stack {
+        position: static;
+    }
+}
+
+@media (max-width: 1024px) {
+    .actions-grid,
+    .field-grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .field-grid,
+    .choice-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-head,
+    .section-body {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nc-shell space-y-6">
+    <form method="POST" action="{{ url_for('nc.create_nc') }}" id="ncForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+            <div class="xl:col-span-2 space-y-5">
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">1</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-compass"></i>
+                                Base del reporte
+                            </div>
+                            <h3 class="section-title">Identificacion del evento</h3>
+                            <p class="section-copy">
+                                Define el numero del registro, quien detecto la incidencia, la fecha, la hora y la sucursal donde ocurrio.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid">
+                            <div>
+                                <label class="form-label">No. NC <span class="text-xs text-gray-400 font-normal">(automatico si lo dejas vacio)</span></label>
+                                <input type="text" name="nc_number" class="input-field font-mono text-sm" placeholder="Ej. 05032026-001-PL">
+                                <p class="field-help">Usa este campo solo si necesitas forzar una numeracion puntual.</p>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Detectada por <span class="req">*</span></label>
+                                <select name="detected_by_type" required class="select-field">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for d in cat_detectada %}
+                                    <option value="{{ d }}">{{ d }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Fecha <span class="req">*</span></label>
+                                <input type="date" name="date_detected" required value="{{ today }}" class="input-field">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Hora</label>
+                                <input type="time" name="time_detected" value="08:00" class="input-field">
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Empresa / sucursal donde ocurrio <span class="req">*</span></label>
+                                <select name="empresa" required class="select-field">
+                                    <option value="">&mdash; Seleccionar sucursal &mdash;</option>
+                                    {% for e in cat_empresas %}
+                                    <option value="{{ e }}">{{ e }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mini-badge-row">
+                            <span class="mini-badge"><i class="fas fa-clock text-primary-600"></i> Fecha y hora primero</span>
+                            <span class="mini-badge"><i class="fas fa-store text-primary-600"></i> Ubicacion obligatoria</span>
+                            <span class="mini-badge"><i class="fas fa-file-lines text-primary-600"></i> Numero opcional</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">2</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-truck-ramp-box"></i>
+                                Fuente del problema
+                            </div>
+                            <h3 class="section-title">Proveedor, origen y seccion afectada</h3>
+                            <p class="section-copy">
+                                Este bloque define desde donde proviene la desviacion. El tipo seleccionado habilita la seccion correcta y la busqueda de proveedor.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid">
+                            <div>
+                                <label class="form-label">Tipo de proveedor <span class="req">*</span></label>
+                                <select name="provider_tipo" id="providerTipo" required class="select-field" onchange="onTipoChange(this.value)">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for t in cat_proveedor_tipo %}
+                                    <option value="{{ t }}">{{ t }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div id="rimithDeptRow" class="hidden">
+                                <label class="form-label">Departamento Rimith <span class="req">*</span></label>
+                                <select name="rimith_dept" id="rimithDept" class="select-field" onchange="onRimithDeptChange(this.value)">
+                                    <option value="">&mdash; Seleccionar depto &mdash;</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Proveedor / empresa</label>
+                                <input type="text" name="provider_name" id="providerSelect" class="input-field" placeholder="&mdash; Selecciona tipo primero &mdash;" list="providerDatalist" autocomplete="off" readonly>
+                                <datalist id="providerDatalist"></datalist>
+                                <p class="field-help">Para Directo, Local y Rimith escribe al menos 2 letras. Para Interna y Riba Smith elige una sucursal.</p>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Seccion <span class="req">*</span></label>
+                                <select name="section" id="sectionSelect" required class="select-field">
+                                    <option value="">&mdash; Selecciona tipo primero &mdash;</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="soft-panel">
+                            <div class="soft-panel-title">Tipo de desviacion</div>
+                            <p class="soft-panel-copy">Marca si el registro responde a una accion correctiva o a una accion preventiva.</p>
+                            <div class="pill-row mt-4">
+                                {% for d in cat_desviacion %}
+                                <label class="pill-option">
+                                    <input type="radio" name="deviation_type" value="{{ d }}" required class="w-4 h-4 text-primary-600 border-gray-300">
+                                    <span>{{ d }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">3</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-pen-ruler"></i>
+                                Hallazgo central
+                            </div>
+                            <h3 class="section-title">Titulo y descripcion del hallazgo</h3>
+                            <p class="section-copy">
+                                Resume el problema en una linea y luego desarrolla el detalle operativo: que paso, como se detecto, cuando ocurrio y cuanto impacto tuvo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid">
+                            <div class="field-span-full">
+                                <label class="form-label">Titulo <span class="req">*</span></label>
+                                <input type="text" name="title" required class="input-field" placeholder="Ej. Contaminacion biologica en Penne Rigate De Cecco">
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Descripcion detallada <span class="req">*</span></label>
+                                <textarea name="description" required rows="7" class="textarea-field description-box" placeholder="Describe el evento con hechos concretos: que se observo, como se identifico, cuando ocurrio, quien intervino, cuanto producto estuvo involucrado y por que se considera no conforme."></textarea>
+                                <p class="field-help">Mientras mas precisa sea la descripcion inicial, mas facil sera la evaluacion y el cierre de la NC.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">4</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-box-open"></i>
+                                Trazabilidad del producto
+                            </div>
+                            <h3 class="section-title">Producto afectado y datos comerciales</h3>
+                            <p class="section-copy">
+                                Busca el producto por codigo o ITMS. Si no se encuentra, el sistema te permite completar la informacion manualmente.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid-3">
+                            <div class="field-span-full">
+                                <label class="form-label">Codigo de barra / ITMS</label>
+                                <input type="text" name="barcode" id="barcodeInput" class="input-field font-mono" placeholder="Ingresa un codigo para buscar producto">
+                                <div id="productSearchStatus" class="product-status hidden">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Buscando...
+                                </div>
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Descripcion del producto</label>
+                                <input type="text" name="product_affected" id="productDescInput" class="input-field" placeholder="Nombre del producto afectado" readonly>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Marca</label>
+                                <input type="text" name="marca" id="marcaInput" class="input-field" placeholder="Marca autocompletada" readonly>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Lote</label>
+                                <input type="text" name="lot" class="input-field" placeholder="No. de lote">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Fecha de vencimiento</label>
+                                <input type="date" name="expiration_date" class="input-field">
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Estado del producto NC</label>
+                                <input type="text" name="nc_product_status" class="input-field" placeholder="Ej. Producto no conforme, mercancia congelada, retenido en recibo">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Total no conforme (unidades)</label>
+                                <input type="number" name="total_units" min="0" step="0.01" class="input-field" placeholder="0">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Total no conforme ($)</label>
+                                <input type="number" name="total_usd" min="0" step="0.01" class="input-field" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="itemcod" id="itemcodInput">
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">5</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-clipboard-check"></i>
+                                Evaluacion operativa
+                            </div>
+                            <h3 class="section-title">Evaluacion y acciones inmediatas</h3>
+                            <p class="section-copy">
+                                Completa el criterio de evaluacion usado, el analisis tecnico inicial y las acciones ejecutadas para contener la desviacion.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid">
+                            <div>
+                                <label class="form-label">Tipo de evaluacion</label>
+                                <select name="evaluation_type" class="select-field">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for e in cat_evaluacion %}
+                                    <option value="{{ e }}">{{ e }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Clasificacion de la NC</label>
+                                <select name="classification" class="select-field">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for c in cat_clasificacion %}
+                                    <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Analisis y descripcion de la evaluacion</label>
+                                <textarea name="evaluation_description" rows="4" class="textarea-field" placeholder="Documenta el criterio aplicado, hallazgos encontrados, evidencia observada y conclusion inicial."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="soft-panel">
+                            <div class="soft-panel-title">Acciones inmediatas</div>
+                            <p class="soft-panel-copy">Anota hasta tres acciones que se ejecutaron para contener el evento o asegurar el producto.</p>
+                            <div class="actions-grid mt-4">
+                                {% for i in range(1,4) %}
+                                <div>
+                                    <label class="form-label">Accion {{ i }}</label>
+                                    <textarea name="action_{{ i }}" rows="4" class="textarea-field" placeholder="Describe la accion {{ i }}..."></textarea>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="space-y-5">
+                <div class="aside-stack">
+                    <section class="section-card">
+                        <div class="section-head">
+                            <div class="step-badge">6</div>
+                            <div>
+                                <div class="section-kicker">
+                                    <i class="fas fa-triangle-exclamation"></i>
+                                    Decision rapida
+                                </div>
+                                <h3 class="section-title">Clasificacion e impacto</h3>
+                                <p class="section-copy">
+                                    Esta columna concentra los criterios de severidad para que no pierdas visibilidad mientras completas el resto del reporte.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="section-body space-y-4">
+                            <div>
+                                <label class="form-label">Gravedad <span class="req">*</span></label>
+                                <div class="choice-grid">
+                                    {% for g in cat_gravedad %}
+                                    <label class="choice-card">
+                                        <input type="radio" name="gravity" value="{{ g }}" required class="w-4 h-4 text-primary-600">
+                                        <span>
+                                            <span class="choice-card-title">{{ g }}</span>
+                                            <span class="choice-card-note">
+                                                {% if g == 'Muy Alta' %}
+                                                Riesgo critico con impacto directo e inmediato.
+                                                {% elif g == 'Alta' %}
+                                                Requiere reaccion prioritaria y seguimiento cercano.
+                                                {% elif g == 'Media' %}
+                                                Impacto controlable con correccion puntual.
+                                                {% else %}
+                                                Incidencia contenida o de menor alcance.
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Causa</label>
+                                <select name="cause" class="select-field text-sm">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for c in cat_causa %}
+                                    <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Motivo</label>
+                                <div class="pill-row">
+                                    {% for m in cat_motivo %}
+                                    <label class="pill-option">
+                                        <input type="radio" name="motive" value="{{ m }}" class="w-4 h-4 text-primary-600">
+                                        <span>{{ m }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Prerrequisito</label>
+                                <select name="prerequisite" class="select-field text-sm">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for p in cat_prerrequisito %}
+                                    <option value="{{ p }}">{{ p }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Impacto detectado</label>
+                                <div class="impact-list">
+                                    {% for field, label in [
+                                        ('affects_consumer', 'Satisfaccion del consumidor final'),
+                                        ('affects_inocuity', 'Inocuidad directa'),
+                                        ('affects_quality', 'Calidad directa')
+                                    ] %}
+                                    <label class="impact-item">
+                                        <input type="checkbox" name="{{ field }}" class="w-4 h-4 text-primary-600 rounded border-gray-300">
+                                        <span>{{ label }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="aside-card">
+                        <h3 class="aside-title">Revision minima antes de guardar</h3>
+                        <p class="aside-copy">Usa esta lista como filtro rapido para evitar registros incompletos o ambiguos.</p>
+
+                        <div class="checklist">
+                            <div class="check-item">
+                                <span class="check-icon"><i class="fas fa-check"></i></span>
+                                Verifica que el tipo de proveedor habilito la seccion correcta.
+                            </div>
+                            <div class="check-item">
+                                <span class="check-icon"><i class="fas fa-check"></i></span>
+                                Redacta un titulo concreto y una descripcion basada en hechos.
+                            </div>
+                            <div class="check-item">
+                                <span class="check-icon"><i class="fas fa-check"></i></span>
+                                Registra gravedad e impacto antes de cerrar el envio.
+                            </div>
+                            <div class="check-item">
+                                <span class="check-icon"><i class="fas fa-check"></i></span>
+                                Si el producto no aparece en busqueda, completa nombre y marca manualmente.
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="submit-panel">
+                        <h3 class="aside-title">Registrar reporte</h3>
+                        <p class="aside-copy">Al guardar, la NC queda abierta y lista para consulta, evaluacion y seguimiento.</p>
+
+                        <div class="space-y-3 mt-4">
+                            <button type="submit" class="btn-primary w-full text-base py-3.5">
+                                <i class="fas fa-save"></i>
+                                Registrar No Conformidad
+                            </button>
+
+                            <a href="{{ url_for('nc.list_nc') }}" class="btn-secondary w-full text-sm justify-center">
+                                <i class="fas fa-times"></i>
+                                Cancelar
+                            </a>
+                        </div>
+
+                        <p class="submit-note">
+                            El No. NC se genera automaticamente si no lo especificas. Si luego necesitas corregir informacion,
+                            podras revisar el registro desde la bandeja de NCs.
+                        </p>
+                    </section>
+                </div>
+            </aside>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const SECCIONES = {{ cat_secciones_json|safe }};
+const RIMITH_SECC = {{ cat_rimith_secciones_json|safe }};
+const EMPRESAS = {{ cat_empresas|tojson|safe }};
+const API_PROVEEDOR_BUSCAR = {{ url_for('nc.api_buscar_proveedor')|tojson }};
+const API_PRODUCTO_BUSCAR = {{ url_for('nc.api_buscar_producto')|tojson }};
+
+function onTipoChange(tipo) {
+    const rimithRow = document.getElementById('rimithDeptRow');
+    const rimithDept = document.getElementById('rimithDept');
+    const provSelect = document.getElementById('providerSelect');
+    const provDatalist = document.getElementById('providerDatalist');
+
+    rimithDept.innerHTML = '<option value="">&mdash; Seleccionar depto &mdash;</option>';
+    provSelect.value = '';
+    provDatalist.innerHTML = '';
+    clearSecciones();
+
+    if (!tipo) {
+        provSelect.setAttribute('readonly', true);
+        provSelect.placeholder = '\u2014 Selecciona tipo primero \u2014';
+        rimithRow.classList.add('hidden');
+        rimithDept.removeAttribute('required');
+        return;
+    }
+
+    provSelect.removeAttribute('readonly');
+
+    if (tipo === 'Interna' || tipo === 'Riba Smith') {
+        provSelect.placeholder = 'Selecciona una empresa o sucursal';
+        EMPRESAS.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            provDatalist.appendChild(option);
+        });
+    } else {
+        provSelect.placeholder = 'Escribe nombre o codigo (min. 2 letras)';
+    }
+
+    if (tipo === 'Rimith') {
+        rimithRow.classList.remove('hidden');
+        rimithDept.setAttribute('required', '');
+        Object.keys(RIMITH_SECC).forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept;
+            option.textContent = dept;
+            rimithDept.appendChild(option);
+        });
+    } else {
+        rimithRow.classList.add('hidden');
+        rimithDept.removeAttribute('required');
+        fillSecciones(SECCIONES[tipo] || []);
+    }
+}
+
+let provTimer = null;
+document.getElementById('providerSelect').addEventListener('input', function (event) {
+    const tipo = document.getElementById('providerTipo').value;
+    if (tipo === 'Interna' || tipo === 'Riba Smith' || !tipo) return;
+
+    const q = event.target.value.trim();
+    if (q.length < 2) return;
+
+    clearTimeout(provTimer);
+    provTimer = setTimeout(() => {
+        const params = new URLSearchParams({ tipo, q });
+        fetch(`${API_PROVEEDOR_BUSCAR}?${params.toString()}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                const dl = document.getElementById('providerDatalist');
+                dl.innerHTML = '';
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    dl.appendChild(option);
+                });
+            })
+            .catch(err => console.error('Error fetching proveedores:', err));
+    }, 350);
+});
+
+function onRimithDeptChange(dept) {
+    clearSecciones();
+    if (dept) fillSecciones(RIMITH_SECC[dept] || []);
+}
+
+function clearSecciones() {
+    const sel = document.getElementById('sectionSelect');
+    sel.innerHTML = '<option value="">&mdash; Seleccionar &mdash;</option>';
+}
+
+function fillSecciones(options) {
+    const sel = document.getElementById('sectionSelect');
+    sel.innerHTML = '<option value="">&mdash; Seleccionar &mdash;</option>';
+    options.forEach(section => {
+        const option = document.createElement('option');
+        option.value = section;
+        option.textContent = section;
+        sel.appendChild(option);
+    });
+}
+
+let prodTimer = null;
+document.getElementById('barcodeInput').addEventListener('input', function (event) {
+    const q = event.target.value.trim();
+    const statusDiv = document.getElementById('productSearchStatus');
+    const descInput = document.getElementById('productDescInput');
+    const marcaInput = document.getElementById('marcaInput');
+    const codInput = document.getElementById('itemcodInput');
+
+    if (q.length < 3) {
+        statusDiv.classList.add('hidden');
+        descInput.value = '';
+        marcaInput.value = '';
+        codInput.value = '';
+        descInput.setAttribute('readonly', '');
+        marcaInput.setAttribute('readonly', '');
+        return;
+    }
+
+    clearTimeout(prodTimer);
+    statusDiv.classList.remove('hidden');
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+
+    prodTimer = setTimeout(() => {
+        const params = new URLSearchParams({ q });
+        fetch(`${API_PRODUCTO_BUSCAR}?${params.toString()}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(res => {
+                if (res.success && res.data.length > 0) {
+                    const item = res.data[0];
+                    descInput.value = item.nombre;
+                    marcaInput.value = item.marca;
+                    codInput.value = item.itemcod;
+                    descInput.setAttribute('readonly', '');
+                    marcaInput.setAttribute('readonly', '');
+                    statusDiv.innerHTML = '<i class="fas fa-check text-green-500"></i> Producto encontrado';
+                } else {
+                    descInput.value = '';
+                    marcaInput.value = '';
+                    codInput.value = '';
+                    descInput.removeAttribute('readonly');
+                    marcaInput.removeAttribute('readonly');
+                    statusDiv.innerHTML = '<i class="fas fa-times text-red-500"></i> No encontrado. Completa los datos manualmente.';
+                }
+            })
+            .catch(err => {
+                console.error('API Producto Error:', err);
+                statusDiv.classList.add('hidden');
+                descInput.removeAttribute('readonly');
+                marcaInput.removeAttribute('readonly');
+            });
+    }, 450);
+});
+</script>
+{% endblock %}

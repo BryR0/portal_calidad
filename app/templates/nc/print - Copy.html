@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NC {{ nc.nc_number }} - Reporte</title>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --muted: #475569;
+            --line: #dbe4f0;
+            --line-strong: #bfdbfe;
+            --panel: #ffffff;
+            --soft: #f8fafc;
+            --brand: #1d4ed8;
+            --brand-deep: #1e3a8a;
+            --brand-soft: #dbeafe;
+            --success-bg: #dcfce7;
+            --success-ink: #166534;
+            --warn-bg: #fef3c7;
+            --warn-ink: #92400e;
+            --danger-bg: #fee2e2;
+            --danger-ink: #b91c1c;
+            --neutral-bg: #e2e8f0;
+            --neutral-ink: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 28%),
+                linear-gradient(180deg, #eaf2ff 0%, #f7fbff 26%, #eef4ff 100%);
+        }
+
+        .print-shell {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 28px 20px 92px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .print-note {
+            margin: 0 0 14px;
+            color: var(--muted);
+            font-size: 13px;
+            text-align: right;
+        }
+
+        .toolbar-btn {
+            appearance: none;
+            border: none;
+            border-radius: 14px;
+            padding: 11px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+
+        .toolbar-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .toolbar-btn.primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+            color: #ffffff;
+            box-shadow: 0 14px 28px -20px rgba(37, 99, 235, 0.95);
+        }
+
+        .toolbar-btn.secondary {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e3a8a;
+            border: 1px solid #bfdbfe;
+        }
+
+        .page {
+            width: min(1140px, 100%);
+            margin: 0 auto;
+            background: var(--panel);
+            border: 1px solid var(--line-strong);
+            border-radius: 26px;
+            box-shadow: 0 28px 60px -44px rgba(15, 23, 42, 0.55);
+            padding: 30px;
+        }
+
+        .report-top {
+            padding: 24px;
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at top right, rgba(191, 219, 254, 0.35), transparent 24%),
+                linear-gradient(135deg, #1e3a8a 0%, #2563eb 52%, #3b82f6 100%);
+            color: #ffffff;
+        }
+
+        .report-eyebrow {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.82;
+        }
+
+        .report-title {
+            margin: 10px 0 0;
+            font-size: 28px;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+        }
+
+        .report-subtitle {
+            margin: 10px 0 0;
+            max-width: 760px;
+            font-size: 15px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .meta-card {
+            min-height: 88px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .meta-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.74;
+        }
+
+        .meta-value {
+            display: block;
+            margin-top: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .mono {
+            font-family: "Consolas", "Courier New", monospace;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .badge.status-open { background: rgba(219, 234, 254, 0.98); color: #1d4ed8; }
+        .badge.status-closed { background: rgba(226, 232, 240, 0.98); color: #334155; }
+        .badge.gravity-high { background: var(--danger-bg); color: var(--danger-ink); }
+        .badge.gravity-medium { background: var(--warn-bg); color: var(--warn-ink); }
+        .badge.gravity-low { background: var(--success-bg); color: var(--success-ink); }
+
+        .section {
+            margin-top: 18px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            overflow: hidden;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px 18px;
+            background:
+                linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%);
+            border-bottom: 1px solid var(--line-strong);
+        }
+
+        .section-title {
+            margin: 0;
+            color: var(--brand-deep);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .section-copy {
+            margin: 0;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .section-body {
+            padding: 18px;
+        }
+
+        .grid-2,
+        .grid-3,
+        .grid-4 {
+            display: grid;
+            gap: 12px;
+        }
+
+        .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+        .span-2 { grid-column: span 2; }
+        .span-3 { grid-column: span 3; }
+        .span-4 { grid-column: span 4; }
+
+        .detail {
+            padding: 13px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: var(--soft);
+        }
+
+        .detail-label {
+            display: block;
+            margin-bottom: 7px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .detail-value {
+            display: block;
+            color: var(--ink);
+            font-size: 15px;
+            line-height: 1.5;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .detail-value.is-empty {
+            color: #94a3b8;
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        .copy-block {
+            padding: 16px 18px;
+            border: 1px solid #dbe4f0;
+            border-radius: 18px;
+            background: #ffffff;
+            color: var(--ink);
+            font-size: 15px;
+            line-height: 1.72;
+            white-space: pre-wrap;
+        }
+
+        .copy-block.muted {
+            color: #475569;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .metric {
+            padding: 15px 16px;
+            border-radius: 18px;
+            border: 1px solid #dbeafe;
+            background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+        }
+
+        .metric-value {
+            display: block;
+            color: var(--ink);
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.15;
+        }
+
+        .metric-label {
+            display: block;
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .impact-card {
+            padding: 13px 14px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            background: var(--soft);
+        }
+
+        .impact-card.is-active.consumer {
+            border-color: #fcd34d;
+            background: #fffbeb;
+        }
+
+        .impact-card.is-active.inocuity {
+            border-color: #fca5a5;
+            background: #fff1f2;
+        }
+
+        .impact-card.is-active.quality {
+            border-color: #fdba74;
+            background: #fff7ed;
+        }
+
+        .impact-state {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--neutral-bg);
+            color: var(--neutral-ink);
+        }
+
+        .impact-card.is-active .impact-state {
+            background: #ffffff;
+        }
+
+        .impact-title {
+            display: block;
+            color: var(--ink);
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+
+        .action-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .action-item {
+            display: grid;
+            grid-template-columns: 34px 1fr;
+            gap: 12px;
+            align-items: start;
+            padding: 13px 14px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            background: var(--soft);
+        }
+
+        .action-index {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .action-text {
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.62;
+            white-space: pre-wrap;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 22px;
+        }
+
+        .signature-box {
+            padding-top: 36px;
+            border-top: 1px solid #94a3b8;
+        }
+
+        .signature-title {
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .signature-copy {
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .report-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 22px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        @media (max-width: 960px) {
+            .meta-grid,
+            .metrics,
+            .impact-grid,
+            .signature-grid,
+            .grid-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .span-3,
+            .span-4 {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .print-shell {
+                padding: 16px 10px 84px;
+            }
+
+            .page {
+                padding: 18px;
+                border-radius: 18px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .print-note {
+                text-align: left;
+            }
+
+            .meta-grid,
+            .metrics,
+            .impact-grid,
+            .signature-grid,
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .span-2,
+            .span-3,
+            .span-4 {
+                grid-column: span 1;
+            }
+
+            .report-title {
+                font-size: 23px;
+            }
+
+            .report-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .screen-only {
+                display: none !important;
+            }
+
+            .print-shell {
+                max-width: none;
+                padding: 0;
+            }
+
+            .page {
+                width: auto;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .report-top {
+                padding: 16px 18px;
+                border-radius: 0;
+            }
+
+            .report-title {
+                font-size: 20px;
+            }
+
+            .report-subtitle {
+                font-size: 11px;
+            }
+
+            .meta-card {
+                min-height: 0;
+                padding: 10px 12px;
+                border-radius: 12px;
+            }
+
+            .meta-label,
+            .detail-label,
+            .impact-state,
+            .signature-copy {
+                font-size: 9px;
+            }
+
+            .meta-value {
+                font-size: 13px;
+                margin-top: 5px;
+            }
+
+            .section {
+                margin-top: 12px;
+                border-radius: 12px;
+                box-shadow: none;
+            }
+
+            .section-head {
+                padding: 9px 12px;
+            }
+
+            .section-title {
+                font-size: 11px;
+            }
+
+            .section-copy {
+                font-size: 9px;
+            }
+
+            .section-body {
+                padding: 12px;
+            }
+
+            .detail,
+            .impact-card,
+            .action-item,
+            .metric,
+            .copy-block {
+                border-radius: 10px;
+            }
+
+            .detail,
+            .impact-card,
+            .action-item,
+            .metric {
+                padding: 9px 10px;
+            }
+
+            .detail-value,
+            .copy-block,
+            .impact-title,
+            .action-text {
+                font-size: 11px;
+            }
+
+            .copy-block {
+                padding: 10px 12px;
+                line-height: 1.55;
+            }
+
+            .metric-value {
+                font-size: 15px;
+            }
+
+            .metric-label,
+            .report-footer,
+            .signature-title {
+                font-size: 10px;
+            }
+
+            .action-item {
+                grid-template-columns: 24px 1fr;
+                gap: 8px;
+            }
+
+            .action-index {
+                width: 24px;
+                height: 24px;
+                font-size: 10px;
+            }
+
+            .signature-grid {
+                gap: 14px;
+                margin-top: 16px;
+            }
+
+            .signature-box {
+                padding-top: 24px;
+            }
+
+            .report-footer {
+                margin-top: 14px;
+                padding-top: 10px;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+        }
+    </style>
+</head>
+<body>
+{% macro detail(label, value, mono=false) -%}
+<div class="detail">
+    <span class="detail-label">{{ label }}</span>
+    <span class="detail-value{% if mono %} mono{% endif %}{% if not value %} is-empty{% endif %}">{{ value or 'Sin datos' }}</span>
+</div>
+{%- endmacro %}
+
+{% set gravity_class = 'gravity-low' %}
+{% if nc.gravity in ('Alta', 'Muy Alta') %}
+    {% set gravity_class = 'gravity-high' %}
+{% elif nc.gravity == 'Media' %}
+    {% set gravity_class = 'gravity-medium' %}
+{% endif %}
+
+<div class="print-shell">
+    <div class="toolbar screen-only">
+        <a href="{{ url_for('nc.view_nc', id=nc.id) }}" class="toolbar-btn secondary">Volver a la NC</a>
+        <button type="button" class="toolbar-btn primary" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>
+    <p class="print-note screen-only">Si el navegador no respeta los colores al imprimir, activa la opcion de fondos o "Background graphics".</p>
+
+    <main class="page">
+        <header class="report-top">
+            <p class="report-eyebrow">Grupo Riba Smith | Gestion de Calidad</p>
+            <h1 class="report-title">Reporte de Desviaciones / Non Conforming Report</h1>
+            <p class="report-subtitle">
+                Formato RS-SM-GC-REG-0001. Vista preparada para revision en pantalla y salida impresa sin perder jerarquia visual.
+            </p>
+
+            <div class="meta-grid">
+                <div class="meta-card">
+                    <span class="meta-label">No. NC</span>
+                    <span class="meta-value mono">{{ nc.nc_number }}</span>
+                </div>
+                <div class="meta-card">
+                    <span class="meta-label">Fecha detectada</span>
+                    <span class="meta-value">{{ nc.date_detected.strftime('%d/%m/%Y') if nc.date_detected else 'Sin datos' }}</span>
+                </div>
+                <div class="meta-card">
+                    <span class="meta-label">Estado</span>
+                    <span class="meta-value">
+                        <span class="badge {% if nc.status == 'Abierta' %}status-open{% else %}status-closed{% endif %}">{{ nc.status }}</span>
+                    </span>
+                </div>
+                <div class="meta-card">
+                    <span class="meta-label">Sucursal</span>
+                    <span class="meta-value">{{ nc.empresa or 'Sin datos' }}</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Identificacion</h2>
+                    <p class="section-copy">Datos base del evento y del reporte.</p>
+                </div>
+                {% if nc.gravity %}
+                <span class="badge {{ gravity_class }}">{{ nc.gravity }}</span>
+                {% endif %}
+            </div>
+            <div class="section-body">
+                <div class="grid-4">
+                    {{ detail('No. NC', nc.nc_number, mono=true) }}
+                    {{ detail('Fecha', nc.date_detected.strftime('%d/%m/%Y') if nc.date_detected else None) }}
+                    {{ detail('Hora', nc.time_detected.strftime('%H:%M') if nc.time_detected else None) }}
+                    {{ detail('Detectada por', nc.detected_by_type) }}
+                    <div class="span-4">{{ detail('Empresa / sucursal', nc.empresa) }}</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Proveedor y origen</h2>
+                    <p class="section-copy">Origen declarado de la desviacion y referencia del proveedor.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="grid-4">
+                    {{ detail('Tipo proveedor', nc.provider_tipo) }}
+                    {{ detail('Proveedor', nc.provider_name) }}
+                    {{ detail('Depto Rimith', nc.rimith_dept) }}
+                    {{ detail('Seccion', nc.section) }}
+                    {{ detail('Tipo de desviacion', nc.deviation_type) }}
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Hallazgo</h2>
+                    <p class="section-copy">Titulo ejecutivo y descripcion completa del evento.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="grid-2">
+                    <div class="span-2">{{ detail('Titulo', nc.title) }}</div>
+                    <div class="span-2">
+                        <span class="detail-label">Descripcion</span>
+                        <div class="copy-block muted">{{ nc.description or 'Sin descripcion.' }}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Clasificacion e impacto</h2>
+                    <p class="section-copy">Criterio tecnico, severidad e impacto detectado.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="grid-2">
+                    <div class="grid-3">
+                        {{ detail('Causa', nc.cause) }}
+                        {{ detail('Motivo', nc.motive) }}
+                        {{ detail('Prerrequisito', nc.prerequisite) }}
+                        {{ detail('Evaluacion', nc.evaluations) }}
+                        {{ detail('Clasificacion NC', nc.classification) }}
+                        {{ detail('Estado del producto NC', nc.nc_product_status) }}
+                    </div>
+                    <div class="impact-grid">
+                        <div class="impact-card{% if nc.affects_consumer %} is-active consumer{% endif %}">
+                            <span class="impact-state">{% if nc.affects_consumer %}Si{% else %}No{% endif %}</span>
+                            <span class="impact-title">Afecta satisfaccion del consumidor final</span>
+                        </div>
+                        <div class="impact-card{% if nc.affects_inocuity %} is-active inocuity{% endif %}">
+                            <span class="impact-state">{% if nc.affects_inocuity %}Si{% else %}No{% endif %}</span>
+                            <span class="impact-title">Afecta inocuidad directa</span>
+                        </div>
+                        <div class="impact-card{% if nc.affects_quality %} is-active quality{% endif %}">
+                            <span class="impact-state">{% if nc.affects_quality %}Si{% else %}No{% endif %}</span>
+                            <span class="impact-title">Afecta calidad directa</span>
+                        </div>
+                    </div>
+                    <div class="span-2">
+                        <span class="detail-label">Analisis de evaluacion</span>
+                        <div class="copy-block">{{ nc.evaluation_description or 'Sin analisis registrado.' }}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Producto afectado</h2>
+                    <p class="section-copy">Identificacion comercial y snapshot de inventario en sucursal.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="grid-4">
+                    <div class="span-2">{{ detail('Descripcion del producto', nc.product_affected) }}</div>
+                    {{ detail('Codigo interno / item', nc.product_code, mono=true) }}
+                    {{ detail('Codigo de barra / ITMS', nc.barcode, mono=true) }}
+                    {{ detail('Marca', nc.marca) }}
+                    {{ detail('Lote', nc.lot) }}
+                    {{ detail('Fecha de vencimiento', nc.expiration_date.strftime('%d/%m/%Y') if nc.expiration_date else None) }}
+                    {{ detail('Estado del producto', nc.nc_product_status) }}
+                </div>
+
+                <div class="metrics" style="margin-top: 12px;">
+                    <div class="metric">
+                        <span class="metric-value">{{ '%.2f'|format(nc.branch_total_units or 0) }}</span>
+                        <span class="metric-label">Inventario sucursal</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">${{ '%.2f'|format(nc.branch_total_usd or 0) }}</span>
+                        <span class="metric-label">Valor sucursal</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">{{ '%.2f'|format(nc.total_units or 0) }}</span>
+                        <span class="metric-label">Unidades NC</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">${{ '%.2f'|format(nc.total_usd or 0) }}</span>
+                        <span class="metric-label">Valor NC</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Acciones y cierre</h2>
+                    <p class="section-copy">Acciones inmediatas, accion correctiva y estado final del reporte.</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="action-list">
+                    {% for idx, action in [(1, nc.action_1), (2, nc.action_2), (3, nc.action_3)] %}
+                    <div class="action-item">
+                        <span class="action-index">{{ idx }}</span>
+                        <div class="action-text">{{ action or 'Sin accion registrada.' }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <span class="detail-label">Accion correctiva</span>
+                    <div class="copy-block">{{ nc.corrective_action or 'Pendiente.' }}</div>
+                </div>
+
+                <div class="grid-3" style="margin-top: 12px;">
+                    {{ detail('Estado', nc.status) }}
+                    {{ detail('Fecha de cierre', nc.closure_date.strftime('%d/%m/%Y') if nc.closure_date else None) }}
+                    {{ detail('Cerrada por', nc.closed_by.username if nc.closed_by else None) }}
+                </div>
+            </div>
+        </section>
+
+        <div class="signature-grid">
+            {% for label in ['Elaborado por / Prepared by', 'Revisado por / Reviewed by', 'Aprobado por / Approved by'] %}
+            <div class="signature-box">
+                <div class="signature-title">{{ label }}</div>
+                <div class="signature-copy">Firma / Signature</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <footer class="report-footer">
+            <span>RS-SM-GC-REG-0001 | Portal de Calidad</span>
+            <span>Impreso: {{ now.strftime('%d/%m/%Y %H:%M') }}</span>
+            <span>Grupo Riba Smith</span>
+        </footer>
+    </main>
+</div>
+
+<script>
+if (new URLSearchParams(window.location.search).get('auto') === '1') {
+    window.addEventListener('load', () => setTimeout(() => window.print(), 400));
+}
+</script>
+</body>
+</html>

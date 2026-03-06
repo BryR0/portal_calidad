@@ -1,0 +1,80 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Entornos virtuales ────────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+
+# ── Variables de entorno / secretos ──────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Base de datos local ───────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+portal_calidad.db
+
+# ── Flask / migraciones generadas ────────────────────────────────────────────
+instance/
+flask_session/
+
+# ── Node / Tailwind ───────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# ── CSS compilado (se regenera con compile_css.bat) ──────────────────────────
+app/static/css/output.css
+
+# ── Uploads / archivos subidos por usuarios ───────────────────────────────────
+app/static/uploads/
+uploads/
+
+# ── Archivos de datos sensibles ───────────────────────────────────────────────
+*.xlsm
+*.xlsx
+*.xls
+
+# ── IDEs y editores ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# ── Cobertura y pruebas ───────────────────────────────────────────────────────
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.pytest_cache/
+.tox/
+
+# ── Distribución / build ──────────────────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Scripts de inspección / migración temporal ────────────────────────────────
+inspect_db.py
+inspect_db_utf8.py
+migrate_sqlite_to_mysql.py

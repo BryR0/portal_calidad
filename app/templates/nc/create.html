@@ -1,0 +1,1241 @@
+{% extends "base.html" %}
+{% set is_edit = is_edit|default(false) %}
+{% set form_page_title = 'Editar No Conformidad' if is_edit else 'Nueva No Conformidad' %}
+
+{% block title %}{{ 'Editar NC' if is_edit else 'Nueva NC' }}{% endblock %}
+{% block breadcrumb %}{{ form_page_title }}{% endblock %}
+{% block page_title %}{{ form_page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.nc-shell {
+    max-width: 1480px;
+    margin: 0 auto;
+    color: #111827;
+    text-rendering: optimizeLegibility;
+}
+
+.section-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 1.3rem;
+    background: #ffffff;
+    box-shadow: 0 18px 35px -32px rgba(15, 23, 42, 0.45);
+}
+
+.section-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.95rem;
+    padding: 1.2rem 1.3rem 1rem;
+    border-bottom: 1px solid #dbeafe;
+    background:
+        radial-gradient(circle at top right, rgba(99, 102, 241, 0.12), transparent 34%),
+        linear-gradient(135deg, #eef2ff 0%, #f8fbff 58%, #ffffff 100%);
+}
+
+.section-head > div:last-child {
+    min-width: 0;
+}
+
+.step-badge {
+    flex: none;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    box-shadow: 0 16px 30px -20px rgba(79, 70, 229, 0.9);
+}
+
+.section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #6366f1;
+    font-size: 0.79rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.section-title {
+    margin-top: 0.25rem;
+    color: #111827;
+    font-size: 1.28rem;
+    line-height: 1.32;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.section-copy {
+    margin-top: 0.45rem;
+    color: #4b5563;
+    font-size: 0.97rem;
+    line-height: 1.75;
+    max-width: 52rem;
+}
+
+.section-body {
+    padding: 0.95rem 1.3rem 1.3rem;
+}
+
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.field-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.field-span-full {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+    font-size: 0.93rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.field-help {
+    margin-top: 0.42rem;
+    color: #6b7280;
+    font-size: 0.82rem;
+    line-height: 1.65;
+}
+
+.req {
+    color: #ef4444;
+    margin-left: 0.15rem;
+}
+
+.soft-panel {
+    margin-top: 1rem;
+    padding: 1rem 1.05rem;
+    border-radius: 1rem;
+    border: 1px dashed #c7d2fe;
+    background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+}
+
+.soft-panel-title {
+    color: #3730a3;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.soft-panel-copy {
+    margin-top: 0.45rem;
+    color: #4b5563;
+    font-size: 0.9rem;
+    line-height: 1.65;
+}
+
+.choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.choice-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    background: #ffffff;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.choice-card:hover {
+    border-color: #c7d2fe;
+    background: #f8faff;
+}
+
+.choice-card:has(input:checked) {
+    border-color: #6366f1;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px #e0e7ff;
+}
+
+.choice-card input {
+    margin-top: 0.18rem;
+}
+
+.choice-card-title {
+    color: #111827;
+    font-size: 0.95rem;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.choice-card-note {
+    display: block;
+    margin-top: 0.26rem;
+    color: #4b5563;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.pill-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #ffffff;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pill-option:has(input:checked) {
+    border-color: #6366f1;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px #e0e7ff;
+}
+
+.pill-option span {
+    color: #374151;
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.impact-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.impact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    background: #ffffff;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.impact-item:hover {
+    border-color: #c7d2fe;
+}
+
+.impact-item:has(input:checked) {
+    border-color: #818cf8;
+    background: #eef2ff;
+    box-shadow: 0 0 0 3px #e0e7ff;
+}
+
+.impact-item span {
+    color: #374151;
+    font-size: 0.91rem;
+    line-height: 1.6;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.intro-card .section-head {
+    border-bottom-color: #bfdbfe;
+    padding: 1rem 1.15rem 0.8rem;
+    background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 30%),
+        linear-gradient(135deg, #eff6ff 0%, #f8fbff 62%, #ffffff 100%);
+}
+
+.intro-card .step-badge {
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: 0.76rem;
+}
+
+.intro-card .section-title {
+    font-size: 1.1rem;
+}
+
+.intro-card .section-copy {
+    font-size: 0.9rem;
+    line-height: 1.62;
+}
+
+.intro-card .section-body {
+    padding-top: 0.8rem;
+    padding-bottom: 1rem;
+}
+
+.intro-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.intro-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.78rem 0.88rem;
+    border: 1px dashed #c7d2fe;
+    border-radius: 1rem;
+    background: #f8fbff;
+    color: #475569;
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.intro-icon {
+    flex: none;
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e7ff;
+    color: #3730a3;
+    margin-top: 0.04rem;
+}
+
+.intro-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 0.85rem;
+}
+
+.intro-actions .btn-secondary,
+.intro-actions .btn-primary {
+    min-width: 220px;
+    justify-content: center;
+}
+
+.intro-note {
+    margin-top: 0.7rem;
+    color: #4b5563;
+    font-size: 0.82rem;
+    line-height: 1.55;
+}
+
+.aside-stack {
+    position: sticky;
+    top: calc(70px + 1.5rem);
+}
+
+.product-status {
+    margin-top: 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.product-status.hidden {
+    display: none;
+}
+
+.description-box {
+    min-height: 8.5rem;
+}
+
+.mini-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.8rem;
+}
+
+.mini-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.nc-shell .input-field,
+.nc-shell .select-field,
+.nc-shell .textarea-field {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+.nc-shell .input-field::placeholder,
+.nc-shell .textarea-field::placeholder {
+    color: #9ca3af;
+}
+
+.nc-shell .font-mono {
+    letter-spacing: -0.01em;
+}
+
+@media (max-width: 1024px) {
+    .actions-grid,
+    .field-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .intro-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .aside-stack {
+        position: static;
+    }
+}
+
+@media (max-width: 640px) {
+    .field-grid,
+    .choice-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-head,
+    .section-body {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .intro-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .intro-actions .btn-secondary,
+    .intro-actions .btn-primary {
+        min-width: 0;
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% macro form_value(name, default='') -%}
+    {%- if request.method == 'POST' -%}
+        {{- request.form.get(name, default) -}}
+    {%- elif nc is defined and nc -%}
+        {%- set value = nc|attr(name) -%}
+        {{- value if value is not none else default -}}
+    {%- else -%}
+        {{- default -}}
+    {%- endif -%}
+{%- endmacro %}
+{% macro form_date(name, default='') -%}
+    {%- if request.method == 'POST' -%}
+        {{- request.form.get(name, default) -}}
+    {%- elif nc is defined and nc and (nc|attr(name)) -%}
+        {{- (nc|attr(name)).isoformat() -}}
+    {%- else -%}
+        {{- default -}}
+    {%- endif -%}
+{%- endmacro %}
+{% macro form_time(name, default='') -%}
+    {%- if request.method == 'POST' -%}
+        {{- request.form.get(name, default) -}}
+    {%- elif nc is defined and nc and (nc|attr(name)) -%}
+        {{- (nc|attr(name)).strftime('%H:%M') -}}
+    {%- else -%}
+        {{- default -}}
+    {%- endif -%}
+{%- endmacro %}
+{% macro selected_if(name, value) -%}
+    {%- if request.method == 'POST' and request.form.get(name) == value -%}selected
+    {%- elif nc is defined and nc and (nc|attr(name)) == value -%}selected
+    {%- endif -%}
+{%- endmacro %}
+{% macro checked_if(name, value=None) -%}
+    {%- if request.method == 'POST' -%}
+        {%- if value is none and request.form.get(name) -%}checked
+        {%- elif value is not none and request.form.get(name) == value -%}checked
+        {%- endif -%}
+    {%- elif nc is defined and nc -%}
+        {%- if value is none and (nc|attr(name)) -%}checked
+        {%- elif value is not none and (nc|attr(name)) == value -%}checked
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro %}
+<div class="nc-shell space-y-6">
+    <form method="POST" action="{{ url_for('nc.edit_nc', id=nc.id) if is_edit else url_for('nc.create_nc') }}" id="ncForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="space-y-5">
+            <section class="section-card intro-card">
+                <div class="section-head">
+                    <div class="step-badge">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <div>
+                        <div class="section-kicker">
+                            <i class="fas fa-compass-drafting"></i>
+                            Guia de captura
+                        </div>
+                        <h3 class="section-title">{{ 'Ajusta la NC y guarda los cambios' if is_edit else 'Completa la NC en orden y registrala al final' }}</h3>
+                        <p class="section-copy">
+                            Llena primero la identificacion, luego el origen, el hallazgo y el producto. Deja la clasificacion e impacto para el panel derecho cuando ya tengas todo el contexto.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="section-body">
+                    <div class="intro-grid">
+                        <div class="intro-item">
+                            <span class="intro-icon"><i class="fas fa-check"></i></span>
+                            Confirma sucursal, proveedor y tipo antes de buscar el producto para que el inventario se calcule correctamente.
+                        </div>
+                        <div class="intro-item">
+                            <span class="intro-icon"><i class="fas fa-check"></i></span>
+                            El proveedor no cambia por bodega. La sucursal se registra arriba y el proveedor se busca solo por nombre o codigo.
+                        </div>
+                        <div class="intro-item">
+                            <span class="intro-icon"><i class="fas fa-check"></i></span>
+                            Si el origen es Rimith, activa departamento y seccion. Para otros tipos, ese campo no aplica.
+                        </div>
+                        <div class="intro-item">
+                            <span class="intro-icon"><i class="fas fa-check"></i></span>
+                            Revisa gravedad e impacto al final, cuando ya tengas hallazgo, producto y acciones inmediatas completas.
+                        </div>
+                    </div>
+
+                    <div class="intro-actions">
+                        <a href="{{ url_for('nc.list_nc') }}" class="btn-secondary text-sm">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-primary text-base py-3">
+                            <i class="fas fa-save"></i>
+                            {{ 'Guardar Cambios' if is_edit else 'Registrar No Conformidad' }}
+                        </button>
+                    </div>
+
+                    <p class="intro-note">
+                        {% if is_edit %}
+                        Guarda los cambios de la NC antes de continuar con validacion, seguimiento o cierre.
+                        {% else %}
+                        El No. NC se genera automaticamente si no lo especificas. Luego podras revisarlo, editarlo y cerrarlo desde la bandeja.
+                        {% endif %}
+                    </p>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                <div class="xl:col-span-2 space-y-5">
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">1</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-compass"></i>
+                                Base del reporte
+                            </div>
+                            <h3 class="section-title">Identificacion del evento</h3>
+                            <p class="section-copy">
+                                Define el numero del registro, quien detecto la incidencia, la fecha, la hora y la sucursal donde ocurrio.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid">
+                            <div>
+                                <label class="form-label">No. NC <span class="text-xs text-gray-400 font-normal">(automatico si lo dejas vacio)</span></label>
+                                <input type="text" name="nc_number" value="{{ form_value('nc_number') }}" class="input-field font-mono text-sm" placeholder="Ej. 05032026-001-PL">
+                                <p class="field-help">Usa este campo solo si necesitas forzar una numeracion puntual.</p>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Detectada por <span class="req">*</span></label>
+                                <select name="detected_by_type" required class="select-field">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for d in cat_detectada %}
+                                    <option value="{{ d }}" {{ selected_if('detected_by_type', d) }}>{{ d }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Fecha <span class="req">*</span></label>
+                                <input type="date" name="date_detected" required value="{{ form_date('date_detected', today) }}" class="input-field">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Hora</label>
+                                <input type="time" name="time_detected" value="{{ form_time('time_detected', '08:00') }}" class="input-field">
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Empresa / sucursal donde ocurrio <span class="req">*</span></label>
+                                <select name="empresa" id="empresaSelect" required class="select-field">
+                                    <option value="">&mdash; Seleccionar sucursal &mdash;</option>
+                                    {% for e in cat_empresas %}
+                                    <option value="{{ e }}" {{ selected_if('empresa', e) }}>{{ e }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mini-badge-row">
+                            <span class="mini-badge"><i class="fas fa-clock text-primary-600"></i> Fecha y hora primero</span>
+                            <span class="mini-badge"><i class="fas fa-store text-primary-600"></i> Ubicacion obligatoria</span>
+                            <span class="mini-badge"><i class="fas fa-file-lines text-primary-600"></i> Numero opcional</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">2</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-truck-ramp-box"></i>
+                                Fuente del problema
+                            </div>
+                            <h3 class="section-title">Proveedor y origen</h3>
+                            <p class="section-copy">
+                                Este bloque define desde donde proviene la desviacion. La seccion solo aplica cuando el tipo es Rimith.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid">
+                            <div>
+                                <label class="form-label">Tipo de proveedor <span class="req">*</span></label>
+                                <select name="provider_tipo" id="providerTipo" required class="select-field" onchange="onTipoChange(this.value)">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for t in cat_proveedor_tipo %}
+                                    <option value="{{ t }}" {{ selected_if('provider_tipo', t) }}>{{ t }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div id="rimithDeptRow" class="hidden">
+                                <label class="form-label">Departamento Rimith <span class="req">*</span></label>
+                                <select name="rimith_dept" id="rimithDept" class="select-field" onchange="onRimithDeptChange(this.value)" data-initial="{{ form_value('rimith_dept') }}">
+                                    <option value="">&mdash; Seleccionar depto &mdash;</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Proveedor</label>
+                                <input type="hidden" name="provider_id" id="providerIdInput" value="{{ form_value('provider_id') }}">
+                                <input type="text" name="provider_name" id="providerSelect" value="{{ form_value('provider_name') }}" class="input-field" placeholder="&mdash; Selecciona tipo primero &mdash;" list="providerDatalist" autocomplete="off" readonly>
+                                <datalist id="providerDatalist"></datalist>
+                                <p class="field-help">El proveedor es unico. La bodega o sucursal se registra arriba en el campo Empresa.</p>
+                            </div>
+
+                            <div id="sectionRow" class="hidden">
+                                <label class="form-label">Seccion <span class="req">*</span></label>
+                                <select name="section" id="sectionSelect" class="select-field" data-initial="{{ form_value('section') }}">
+                                    <option value="">&mdash; Selecciona tipo primero &mdash;</option>
+                                </select>
+                                <p class="field-help">Solo aplica para producto Rimith.</p>
+                            </div>
+                        </div>
+
+                        <div class="soft-panel">
+                            <div class="soft-panel-title">Tipo de desviacion</div>
+                            <p class="soft-panel-copy">Marca si el registro responde a una accion correctiva o a una accion preventiva.</p>
+                            <div class="pill-row mt-4">
+                                {% for d in cat_desviacion %}
+                                <label class="pill-option">
+                                    <input type="radio" name="deviation_type" value="{{ d }}" required class="w-4 h-4 text-primary-600 border-gray-300" {{ checked_if('deviation_type', d) }}>
+                                    <span>{{ d }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">3</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-pen-ruler"></i>
+                                Hallazgo central
+                            </div>
+                            <h3 class="section-title">Titulo y descripcion del hallazgo</h3>
+                            <p class="section-copy">
+                                Resume el problema en una linea y luego desarrolla el detalle operativo: que paso, como se detecto, cuando ocurrio y cuanto impacto tuvo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid">
+                            <div class="field-span-full">
+                                <label class="form-label">Titulo <span class="req">*</span></label>
+                                <input type="text" name="title" required value="{{ form_value('title') }}" class="input-field" placeholder="Ej. Contaminacion biologica en Penne Rigate De Cecco">
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Descripcion detallada <span class="req">*</span></label>
+                                <textarea name="description" required rows="7" class="textarea-field description-box" placeholder="Describe el evento con hechos concretos: que se observo, como se identifico, cuando ocurrio, quien intervino, cuanto producto estuvo involucrado y por que se considera no conforme.">{{ form_value('description') }}</textarea>
+                                <p class="field-help">Mientras mas precisa sea la descripcion inicial, mas facil sera la evaluacion y el cierre de la NC.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">4</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-box-open"></i>
+                                Trazabilidad del producto
+                            </div>
+                            <h3 class="section-title">Producto afectado y datos comerciales</h3>
+                            <p class="section-copy">
+                                Busca el producto por codigo o ITMS. Si no se encuentra, el sistema te permite completar la informacion manualmente.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid-3">
+                            <div class="field-span-full">
+                                <label class="form-label">Codigo de barra / ITMS</label>
+                                <input type="text" name="barcode" id="barcodeInput" value="{{ form_value('barcode') }}" class="input-field font-mono" placeholder="Ingresa un codigo para buscar producto">
+                                <div id="productSearchStatus" class="product-status hidden">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Buscando...
+                                </div>
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Descripcion del producto</label>
+                                <input type="text" name="product_affected" id="productDescInput" value="{{ form_value('product_affected') }}" class="input-field" placeholder="Nombre del producto afectado" readonly>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Codigo interno del producto / item master</label>
+                                <input type="text" name="product_code" id="itemcodInput" value="{{ form_value('product_code') }}" class="input-field font-mono" placeholder="Se autocompleta al buscar" readonly>
+                                <p class="field-help">Es el codigo interno con el que el producto existe en el inventario o maestro de articulos.</p>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Marca</label>
+                                <input type="text" name="marca" id="marcaInput" value="{{ form_value('marca') }}" class="input-field" placeholder="Marca autocompletada" readonly>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Lote</label>
+                                <input type="text" name="lot" value="{{ form_value('lot') }}" class="input-field" placeholder="No. de lote">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Fecha de vencimiento</label>
+                                <input type="date" name="expiration_date" value="{{ form_date('expiration_date') }}" class="input-field">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Total en sucursal</label>
+                                <input type="number" name="branch_total_units" id="branchUnitsInput" value="{{ form_value('branch_total_units') }}" min="0" step="0.01" class="input-field" placeholder="0" readonly>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Valor en sucursal ($)</label>
+                                <input type="number" name="branch_total_usd" id="branchTotalUsdInput" value="{{ form_value('branch_total_usd') }}" min="0" step="0.01" class="input-field" placeholder="0.00" readonly>
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Estado del producto NC</label>
+                                <input type="text" name="nc_product_status" value="{{ form_value('nc_product_status') }}" class="input-field" placeholder="Ej. Producto no conforme, mercancia congelada, retenido en recibo">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Total no conforme (unidades)</label>
+                                <input type="number" name="total_units" value="{{ form_value('total_units') }}" min="0" step="0.01" class="input-field" placeholder="0">
+                            </div>
+
+                            <div>
+                                <label class="form-label">Total no conforme ($)</label>
+                                <input type="number" name="total_usd" value="{{ form_value('total_usd') }}" min="0" step="0.01" class="input-field" placeholder="0.00">
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-head">
+                        <div class="step-badge">5</div>
+                        <div>
+                            <div class="section-kicker">
+                                <i class="fas fa-clipboard-check"></i>
+                                Evaluacion operativa
+                            </div>
+                            <h3 class="section-title">Evaluacion y acciones inmediatas</h3>
+                            <p class="section-copy">
+                                Completa el criterio de evaluacion usado, el analisis tecnico inicial y las acciones ejecutadas para contener la desviacion.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <div class="field-grid">
+                            <div>
+                                <label class="form-label">Tipo de evaluacion</label>
+                                <select name="evaluation_type" class="select-field">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for e in cat_evaluacion %}
+                                    <option value="{{ e }}" {% if request.method == 'POST' %}{% if request.form.get('evaluation_type') == e %}selected{% endif %}{% elif nc and nc.evaluations == e %}selected{% endif %}>{{ e }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Clasificacion de la NC</label>
+                                <select name="classification" class="select-field">
+                                    <option value="">&mdash; Seleccionar &mdash;</option>
+                                    {% for c in cat_clasificacion %}
+                                    <option value="{{ c }}" {{ selected_if('classification', c) }}>{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="field-span-full">
+                                <label class="form-label">Analisis y descripcion de la evaluacion</label>
+                                <textarea name="evaluation_description" rows="4" class="textarea-field" placeholder="Documenta el criterio aplicado, hallazgos encontrados, evidencia observada y conclusion inicial.">{{ form_value('evaluation_description') }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="soft-panel">
+                            <div class="soft-panel-title">Acciones inmediatas</div>
+                            <p class="soft-panel-copy">Anota hasta tres acciones que se ejecutaron para contener el evento o asegurar el producto.</p>
+                            <div class="actions-grid mt-4">
+                                {% for i in range(1,4) %}
+                                <div>
+                                    <label class="form-label">Accion {{ i }}</label>
+                                    <textarea name="action_{{ i }}" rows="4" class="textarea-field" placeholder="Describe la accion {{ i }}...">{{ form_value('action_' ~ i) }}</textarea>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                </div>
+
+                <aside class="space-y-5">
+                    <div class="aside-stack">
+                        <section class="section-card">
+                            <div class="section-head">
+                                <div class="step-badge">6</div>
+                                <div>
+                                    <div class="section-kicker">
+                                        <i class="fas fa-triangle-exclamation"></i>
+                                        Decision rapida
+                                    </div>
+                                    <h3 class="section-title">Clasificacion e impacto</h3>
+                                    <p class="section-copy">
+                                        Cierra el criterio tecnico del reporte en este ultimo bloque, ya con todo el contexto del hallazgo y del producto.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="section-body space-y-4">
+                                <div>
+                                    <label class="form-label">Gravedad <span class="req">*</span></label>
+                                    <div class="choice-grid">
+                                        {% for g in cat_gravedad %}
+                                        <label class="choice-card">
+                                            <input type="radio" name="gravity" value="{{ g }}" required class="w-4 h-4 text-primary-600" {{ checked_if('gravity', g) }}>
+                                            <span>
+                                                <span class="choice-card-title">{{ g }}</span>
+                                                <span class="choice-card-note">
+                                                    {% if g == 'Muy Alta' %}
+                                                    Riesgo critico con impacto directo e inmediato.
+                                                    {% elif g == 'Alta' %}
+                                                    Requiere reaccion prioritaria y seguimiento cercano.
+                                                    {% elif g == 'Media' %}
+                                                    Impacto controlable con correccion puntual.
+                                                    {% else %}
+                                                    Incidencia contenida o de menor alcance.
+                                                    {% endif %}
+                                                </span>
+                                            </span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="field-grid">
+                                    <div>
+                                        <label class="form-label">Causa</label>
+                                        <select name="cause" class="select-field text-sm">
+                                            <option value="">&mdash; Seleccionar &mdash;</option>
+                                            {% for c in cat_causa %}
+                                            <option value="{{ c }}" {{ selected_if('cause', c) }}>{{ c }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="form-label">Prerrequisito</label>
+                                        <select name="prerequisite" class="select-field text-sm">
+                                            <option value="">&mdash; Seleccionar &mdash;</option>
+                                            {% for p in cat_prerrequisito %}
+                                            <option value="{{ p }}" {{ selected_if('prerequisite', p) }}>{{ p }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Motivo</label>
+                                    <div class="pill-row">
+                                        {% for m in cat_motivo %}
+                                        <label class="pill-option">
+                                            <input type="radio" name="motive" value="{{ m }}" class="w-4 h-4 text-primary-600" {{ checked_if('motive', m) }}>
+                                            <span>{{ m }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Impacto detectado</label>
+                                    <div class="impact-list">
+                                        {% for field, label in [
+                                            ('affects_consumer', 'Satisfaccion del consumidor final'),
+                                            ('affects_inocuity', 'Inocuidad directa'),
+                                            ('affects_quality', 'Calidad directa')
+                                        ] %}
+                                        <label class="impact-item">
+                                            <input type="checkbox" name="{{ field }}" class="w-4 h-4 text-primary-600 rounded border-gray-300" {{ checked_if(field) }}>
+                                            <span>{{ label }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const SECCIONES = {{ cat_secciones_json|safe }};
+const RIMITH_SECC = {{ cat_rimith_secciones_json|safe }};
+const API_PROVEEDOR_BUSCAR = {{ url_for('nc.api_buscar_proveedor')|tojson }};
+const API_PRODUCTO_BUSCAR = {{ url_for('nc.api_buscar_producto')|tojson }};
+const INITIAL_FORM = {
+    provider_tipo: {{ (request.form.get('provider_tipo') if request.method == 'POST' else (nc.provider_tipo if nc else ''))|tojson }},
+    rimith_dept: {{ (request.form.get('rimith_dept') if request.method == 'POST' else (nc.rimith_dept if nc else ''))|tojson }},
+    section: {{ (request.form.get('section') if request.method == 'POST' else (nc.section if nc else ''))|tojson }},
+    provider_id: {{ (request.form.get('provider_id') if request.method == 'POST' else ((nc.provider_id|string) if nc and nc.provider_id is not none else ''))|tojson }},
+    provider_name: {{ (request.form.get('provider_name') if request.method == 'POST' else (nc.provider_name if nc else ''))|tojson }},
+};
+let providerOptions = [];
+
+function onTipoChange(tipo, preserveState = false) {
+    const rimithRow = document.getElementById('rimithDeptRow');
+    const rimithDept = document.getElementById('rimithDept');
+    const sectionRow = document.getElementById('sectionRow');
+    const sectionSelect = document.getElementById('sectionSelect');
+    const providerIdInput = document.getElementById('providerIdInput');
+    const provSelect = document.getElementById('providerSelect');
+    const provDatalist = document.getElementById('providerDatalist');
+    const savedProviderId = preserveState ? (providerIdInput.value || INITIAL_FORM.provider_id || '') : '';
+    const savedProviderName = preserveState ? (provSelect.value || INITIAL_FORM.provider_name || '') : '';
+    const savedDept = preserveState ? (INITIAL_FORM.rimith_dept || rimithDept.dataset.initial || '') : '';
+    const savedSection = preserveState ? (INITIAL_FORM.section || sectionSelect.dataset.initial || '') : '';
+
+    rimithDept.innerHTML = '<option value="">&mdash; Seleccionar depto &mdash;</option>';
+    if (!preserveState) {
+        rimithDept.value = '';
+        providerIdInput.value = '';
+        provSelect.value = '';
+    }
+    providerOptions = [];
+    provDatalist.innerHTML = '';
+    clearSecciones();
+
+    if (!tipo) {
+        provSelect.setAttribute('readonly', true);
+        provSelect.placeholder = '\u2014 Selecciona tipo primero \u2014';
+        rimithRow.classList.add('hidden');
+        rimithDept.removeAttribute('required');
+        sectionRow.classList.add('hidden');
+        sectionSelect.removeAttribute('required');
+        return;
+    }
+
+    provSelect.removeAttribute('readonly');
+    provSelect.placeholder = 'Escribe nombre o codigo (min. 2 letras)';
+
+    if (tipo === 'Rimith') {
+        rimithRow.classList.remove('hidden');
+        rimithDept.setAttribute('required', '');
+        sectionRow.classList.remove('hidden');
+        sectionSelect.setAttribute('required', '');
+        Object.keys(RIMITH_SECC).forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept;
+            option.textContent = dept;
+            rimithDept.appendChild(option);
+        });
+        if (savedDept) {
+            rimithDept.value = savedDept;
+            onRimithDeptChange(savedDept, true);
+        }
+    } else {
+        rimithRow.classList.add('hidden');
+        rimithDept.removeAttribute('required');
+        sectionRow.classList.add('hidden');
+        sectionSelect.removeAttribute('required');
+        clearSecciones();
+    }
+
+    if (preserveState) {
+        providerIdInput.value = savedProviderId;
+        provSelect.value = savedProviderName;
+        if (tipo !== 'Rimith' && savedSection) {
+            sectionSelect.dataset.initial = savedSection;
+        }
+    }
+}
+
+function syncProviderSelection() {
+    const input = document.getElementById('providerSelect');
+    const hidden = document.getElementById('providerIdInput');
+    const rawValue = input.value.trim();
+
+    if (!rawValue) {
+        hidden.value = '';
+        return;
+    }
+
+    const normalized = rawValue.toLowerCase();
+    const match = providerOptions.find(item =>
+        item.name.toLowerCase() === normalized ||
+        (item.label && item.label.toLowerCase() === normalized)
+    );
+
+    if (!match) {
+        hidden.value = '';
+        return;
+    }
+
+    hidden.value = match.id ?? '';
+    input.value = match.name;
+}
+
+let provTimer = null;
+document.getElementById('providerSelect').addEventListener('input', function (event) {
+    const tipo = document.getElementById('providerTipo').value;
+    if (!tipo) return;
+
+    const q = event.target.value.trim();
+    document.getElementById('providerIdInput').value = '';
+    if (q.length < 2) {
+        providerOptions = [];
+        document.getElementById('providerDatalist').innerHTML = '';
+        return;
+    }
+
+    clearTimeout(provTimer);
+    provTimer = setTimeout(() => {
+        const params = new URLSearchParams({ tipo, q });
+        fetch(`${API_PROVEEDOR_BUSCAR}?${params.toString()}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                const dl = document.getElementById('providerDatalist');
+                providerOptions = data;
+                dl.innerHTML = '';
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.name;
+                    option.label = item.label || item.name;
+                    option.textContent = item.label || item.name;
+                    dl.appendChild(option);
+                });
+                syncProviderSelection();
+            })
+            .catch(err => console.error('Error fetching proveedores:', err));
+    }, 350);
+});
+
+document.getElementById('providerSelect').addEventListener('change', syncProviderSelection);
+document.getElementById('providerSelect').addEventListener('blur', syncProviderSelection);
+
+function onRimithDeptChange(dept, preserveState = false) {
+    const sectionSelect = document.getElementById('sectionSelect');
+    const selectedSection = preserveState ? (INITIAL_FORM.section || sectionSelect.dataset.initial || '') : '';
+    clearSecciones();
+    if (dept) fillSecciones(RIMITH_SECC[dept] || [], selectedSection);
+}
+
+function clearSecciones() {
+    const sel = document.getElementById('sectionSelect');
+    sel.innerHTML = '<option value="">&mdash; Seleccionar &mdash;</option>';
+}
+
+function fillSecciones(options, selectedValue = '') {
+    const sel = document.getElementById('sectionSelect');
+    sel.innerHTML = '<option value="">&mdash; Seleccionar &mdash;</option>';
+    options.forEach(section => {
+        const option = document.createElement('option');
+        option.value = section;
+        option.textContent = section;
+        sel.appendChild(option);
+    });
+    if (selectedValue) {
+        sel.value = selectedValue;
+    }
+}
+
+function clearProductSnapshot() {
+    const statusDiv = document.getElementById('productSearchStatus');
+    const descInput = document.getElementById('productDescInput');
+    const marcaInput = document.getElementById('marcaInput');
+    const codInput = document.getElementById('itemcodInput');
+    const branchUnitsInput = document.getElementById('branchUnitsInput');
+    const branchTotalUsdInput = document.getElementById('branchTotalUsdInput');
+
+    statusDiv.classList.add('hidden');
+    descInput.value = '';
+    marcaInput.value = '';
+    codInput.value = '';
+    branchUnitsInput.value = '';
+    branchTotalUsdInput.value = '';
+    descInput.setAttribute('readonly', '');
+    marcaInput.setAttribute('readonly', '');
+}
+
+function applyProductSnapshot(item, empresa) {
+    const barcodeInput = document.getElementById('barcodeInput');
+    const descInput = document.getElementById('productDescInput');
+    const marcaInput = document.getElementById('marcaInput');
+    const codInput = document.getElementById('itemcodInput');
+    const branchUnitsInput = document.getElementById('branchUnitsInput');
+    const branchTotalUsdInput = document.getElementById('branchTotalUsdInput');
+    const statusDiv = document.getElementById('productSearchStatus');
+
+    barcodeInput.value = item.barcode || '';
+    descInput.value = item.nombre || '';
+    marcaInput.value = item.marca || '';
+    codInput.value = item.itemcod || '';
+    branchUnitsInput.value = item.branch_total_units ?? '';
+    branchTotalUsdInput.value = item.branch_total_usd ?? '';
+    descInput.setAttribute('readonly', '');
+    marcaInput.setAttribute('readonly', '');
+
+    let message = '<i class="fas fa-check text-green-500"></i> Producto encontrado';
+    if (!item.barcode) {
+        message += '. El maestro no tiene codigo de barra disponible para este item.';
+    }
+    if (!empresa) {
+        message += '. Selecciona una sucursal para ver inventario.';
+    } else if (!item.branch_bodega || Number(item.branch_total_units || 0) === 0) {
+        message += '. Sin inventario visible para esa sucursal.';
+    }
+    statusDiv.innerHTML = message;
+}
+
+function fetchProductSnapshot(q) {
+    const statusDiv = document.getElementById('productSearchStatus');
+    const empresa = document.getElementById('empresaSelect').value.trim();
+
+    clearTimeout(prodTimer);
+    statusDiv.classList.remove('hidden');
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+
+    prodTimer = setTimeout(() => {
+        const params = new URLSearchParams({ q, empresa });
+        fetch(`${API_PRODUCTO_BUSCAR}?${params.toString()}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(res => {
+                if (res.success && res.data.length > 0) {
+                    applyProductSnapshot(res.data[0], empresa);
+                } else {
+                    clearProductSnapshot();
+                    statusDiv.classList.remove('hidden');
+                    document.getElementById('productDescInput').removeAttribute('readonly');
+                    document.getElementById('marcaInput').removeAttribute('readonly');
+                    statusDiv.innerHTML = '<i class="fas fa-times text-red-500"></i> No encontrado. Completa los datos manualmente.';
+                }
+            })
+            .catch(err => {
+                console.error('API Producto Error:', err);
+                clearProductSnapshot();
+                statusDiv.classList.remove('hidden');
+                document.getElementById('productDescInput').removeAttribute('readonly');
+                document.getElementById('marcaInput').removeAttribute('readonly');
+                statusDiv.innerHTML = '<i class="fas fa-times text-red-500"></i> No fue posible consultar inventario.';
+            });
+    }, 450);
+}
+
+let prodTimer = null;
+document.getElementById('barcodeInput').addEventListener('input', function (event) {
+    const q = event.target.value.trim();
+    if (q.length < 3) {
+        clearProductSnapshot();
+        return;
+    }
+    fetchProductSnapshot(q);
+});
+
+document.getElementById('empresaSelect').addEventListener('change', function () {
+    const q = document.getElementById('barcodeInput').value.trim();
+    if (q.length >= 3) {
+        fetchProductSnapshot(q);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (INITIAL_FORM.provider_tipo) {
+        onTipoChange(INITIAL_FORM.provider_tipo, true);
+    }
+});
+</script>
+{% endblock %}

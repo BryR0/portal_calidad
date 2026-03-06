@@ -1,0 +1,32 @@
+# Plan de Trabajo: Portal de Gestión de Calidad
+
+- [x] Fase 1: Análisis y Arquitectura
+  - [x] Definición del Modelo de Datos (Esquema de Base de Datos para No Conformidades)
+  - [x] Definición del Stack Tecnológico (Flask, TailwindCSS, MySQL)
+  - [x] Definición de Roles y Permisos (Admin, Calidad, Proveedor, etc.)
+- [/] Fase 2: Configuración del Proyecto
+  - [x] Inicialización del repositorio y entorno de desarrollo (Backend)
+  - [x] Configuración del entorno Python (Flask) y variables (`.env`)
+  - [x] Integración de compresión CSS con Tailwind (.bat/scripts)
+  - [x] Configuración de dependencias y conexión para MySQL
+- [x] Fase 3: Desarrollo del Backend (API)
+  - [x] Creación de modelos de datos (No Conformidades, Usuarios, catálogos)
+  - [x] Adaptación e implementación de Tablas Maestras (Reporte Maestro, Suplidores)
+  - [x] Semilla (Seed) para las Secciones en Base de Datos (Artesanal, Carnicería, Chocolatería, etc.)
+  - [x] Implementación de endpoints CRUD para No Conformidades
+  - [x] Lógica de filtrado, búsqueda y control de estados
+  - [x] Flujo de recuperación de contraseña (generación y validación de tokens)
+  - [x] Configuración y envío de correos electrónicos
+- [/] Fase 4: Desarrollo del Frontend (Portal Web)
+  - [/] Sistema de Autenticación y Autorización
+  - [x] Vistas de "Olvidé mi contraseña" y "Restablecer contraseña"
+  - [x] Plantilla HTML para correo electrónico de recuperación
+  - [/] Dashboard principal (Métricas de estado, gravedad, etc.)
+  - [ ] Formulario de registro de nuevas No Conformidades
+  - [ ] Vista de detalle y gestión de acciones correctivas
+  - [ ] Tabla/Lista principal con filtros avanzados
+- [ ] Pruebas y Validación
+  - [ ] Pruebas unitarias de la API
+  - [ ] Pruebas funcionales de los flujos del usuario
+- [ ] Fase 6: Despliegue
+  - [ ] Preparación y despliegue a entorno de producción

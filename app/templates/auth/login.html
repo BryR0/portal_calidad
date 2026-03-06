@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión — Portal de Calidad</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
+
+    <style>
+        body { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-x-hidden">
+
+    <!-- Background shapes -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div class="absolute w-[300px] h-[300px] top-[10%] left-[10%] rounded-full bg-white/10 blur-xl animate-float"></div>
+        <div class="absolute w-[200px] h-[200px] bottom-[10%] right-[15%] rounded-full bg-white/10 blur-xl animate-float [animation-delay:5s]"></div>
+        <div class="absolute w-[150px] h-[150px] top-[50%] right-[10%] rounded-full bg-white/10 blur-xl animate-float [animation-delay:10s]"></div>
+    </div>
+
+    <!-- Login container -->
+    <div class="relative z-10 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 rounded-[2rem] shadow-2xl overflow-hidden min-h-[560px] glass-panel">
+
+        <!-- Left: Branding -->
+        <div class="hidden md:flex relative flex-col justify-center p-12 text-white overflow-hidden bg-gradient-to-br from-primary-600 to-purple-700">
+            <!-- animated circle -->
+            <div class="absolute -top-1/2 -right-1/2 w-[200%] h-[200%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.08),transparent)] animate-rotate pointer-events-none"></div>
+
+            <div class="relative z-10">
+                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm mb-8">
+                    <i class="fas fa-shield-alt text-3xl"></i>
+                </div>
+
+                <h1 class="text-4xl font-extrabold mb-3 drop-shadow-md leading-tight">Portal de Calidad</h1>
+                <p class="text-base text-white/85 mb-10 leading-relaxed">
+                    Gestión integral de No Conformidades<br>Grupo Riba Smith
+                </p>
+
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md hover:bg-white/20 transition">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Registro de NCs</h3>
+                            <p class="text-sm text-white/75">Captura y seguimiento centralizado</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md hover:bg-white/20 transition">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Dashboard Analítico</h3>
+                            <p class="text-sm text-white/75">Métricas e indicadores en tiempo real</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/10 backdrop-blur-md hover:bg-white/20 transition">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Reportes PDF</h3>
+                            <p class="text-sm text-white/75">Exporta reportes bilingües al instante</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="p-8 md:p-12 flex flex-col justify-center bg-white">
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-1">Bienvenido</h2>
+                <p class="text-gray-500">Ingresa tus credenciales para acceder</p>
+            </div>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="mb-5 space-y-2">
+                {% for category, message in messages %}
+                <div class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium
+                            {% if category == 'success' %}bg-green-50 text-green-700 border-l-4 border-green-500
+                            {% elif category == 'error' %}bg-red-50 text-red-700 border-l-4 border-red-500
+                            {% else %}bg-blue-50 text-blue-700 border-l-4 border-blue-500{% endif %}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% else %}info-circle{% endif %} text-base"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
+                {{ form.hidden_tag() }}
+
+                <!-- Username -->
+                <div class="space-y-1.5">
+                    <label for="username" class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                        <i class="fas fa-user text-primary-500 text-xs"></i> Usuario
+                    </label>
+                    <input type="text" id="username" name="username"
+                           value="{{ form.username.data or '' }}"
+                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all font-medium"
+                           placeholder="Tu nombre de usuario"
+                           required autofocus autocomplete="username">
+                    {% if form.username.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.username.errors[0] }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="space-y-1.5">
+                    <label for="password" class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                        <i class="fas fa-lock text-primary-500 text-xs"></i> Contraseña
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="password" name="password"
+                               class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all font-medium pr-12"
+                               placeholder="Tu contraseña"
+                               required autocomplete="current-password">
+                        <button type="button"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-600 transition p-1"
+                                onclick="togglePwd()" tabindex="-1">
+                            <i class="fas fa-eye" id="pwdIcon"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.password.errors[0] }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Remember me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="remember" name="remember"
+                               class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <label for="remember" class="text-sm text-gray-600 cursor-pointer">Recordarme</label>
+                    </div>
+                    <a href="{{ url_for('auth.reset_request') }}" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </div>
+
+                <button type="submit"
+                        class="w-full py-3.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary-500/30">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <p class="mt-6 text-center text-gray-400 text-xs">
+                &copy; 2026 Grupo Riba Smith. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+
+    <script>
+    function togglePwd() {
+        const input = document.getElementById('password');
+        const icon  = document.getElementById('pwdIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+    </script>
+</body>
+</html>

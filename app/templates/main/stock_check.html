@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Checar Existencia{% endblock %}
+{% block breadcrumb %}Checar Existencia{% endblock %}
+{% block page_title %}Checar Existencia{% endblock %}
+
+{% block extra_css %}
+<style>
+.stock-shell {
+    max-width: 1480px;
+    margin: 0 auto;
+}
+
+.stock-search-card,
+.stock-result-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 1.25rem;
+    background: #ffffff;
+    box-shadow: 0 18px 35px -32px rgba(15, 23, 42, 0.45);
+}
+
+.stock-head {
+    padding: 1.2rem 1.3rem 1rem;
+    border-bottom: 1px solid #dbeafe;
+    background:
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.14), transparent 34%),
+        linear-gradient(135deg, #f0f9ff 0%, #f8fafc 58%, #ffffff 100%);
+}
+
+.stock-title {
+    color: #0f172a;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.stock-copy {
+    margin-top: 0.35rem;
+    color: #475569;
+    font-size: 0.94rem;
+    line-height: 1.65;
+}
+
+.stock-body {
+    padding: 1.25rem 1.3rem 1.3rem;
+}
+
+.stock-metric {
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.stock-metric-label {
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.stock-metric-value {
+    margin-top: 0.35rem;
+    color: #0f172a;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.stock-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.stock-table td {
+    color: #0f172a;
+    font-size: 0.9rem;
+}
+
+.stock-empty {
+    border: 1px dashed #cbd5e1;
+    border-radius: 1rem;
+    padding: 1rem;
+    color: #64748b;
+    background: #f8fafc;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stock-shell space-y-5">
+    <section class="stock-search-card">
+        <div class="stock-head">
+            <h2 class="stock-title">Buscar producto contaminado o comprometido</h2>
+            <p class="stock-copy">
+                Busca por codigo interno, codigo de barra o nombre. El sistema muestra marca, suplidor y el inventario disponible por bodega usando `rsi_inv_pordia`.
+            </p>
+        </div>
+        <div class="stock-body">
+            <form method="GET" action="{{ url_for('main.stock_check') }}" class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3">
+                <div class="relative">
+                    <i class="fas fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sky-600 text-sm"></i>
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ q }}"
+                        class="input-field pl-10"
+                        placeholder="Ej. 110203, 7456789012345 o nombre del producto">
+                </div>
+                <button type="submit" class="btn-primary px-5">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    {% if q and not results %}
+    <div class="stock-empty">
+        No se encontraron productos para <strong>{{ q }}</strong>.
+    </div>
+    {% endif %}
+
+    {% for product in results %}
+    <section class="stock-result-card">
+        <div class="stock-head">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0">
+                    <h3 class="stock-title">{{ product.nombre }}</h3>
+                    <p class="stock-copy">
+                        <span class="font-semibold text-slate-700">Item:</span> {{ product.itemcod }}
+                        {% if product.barcode %}<span class="mx-2 text-slate-300">|</span><span class="font-semibold text-slate-700">Barra:</span> {{ product.barcode }}{% endif %}
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full lg:w-auto">
+                    <div class="stock-metric">
+                        <div class="stock-metric-label">Marca</div>
+                        <div class="stock-metric-value text-base">{{ product.marca or 'Sin marca' }}</div>
+                    </div>
+                    <div class="stock-metric">
+                        <div class="stock-metric-label">Suplidor</div>
+                        <div class="stock-metric-value text-base">{{ product.suplidor or 'Sin suplidor' }}</div>
+                    </div>
+                    <div class="stock-metric">
+                        <div class="stock-metric-label">Precio</div>
+                        <div class="stock-metric-value">${{ '%.2f'|format(product.precio) }}</div>
+                    </div>
+                    <div class="stock-metric">
+                        <div class="stock-metric-label">Total Unidades</div>
+                        <div class="stock-metric-value">{{ '%.2f'|format(product.total_unidades) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stock-body">
+            {% if product.inventories %}
+            <div class="overflow-x-auto">
+                <table class="stock-table w-full border-separate border-spacing-0">
+                    <thead>
+                        <tr>
+                            <th class="text-left px-4 py-3 border-b border-slate-200">Bodega</th>
+                            <th class="text-left px-4 py-3 border-b border-slate-200">Sucursal</th>
+                            <th class="text-right px-4 py-3 border-b border-slate-200">Cantidad</th>
+                            <th class="text-right px-4 py-3 border-b border-slate-200">Precio</th>
+                            <th class="text-right px-4 py-3 border-b border-slate-200">Valor</th>
+                            <th class="text-right px-4 py-3 border-b border-slate-200">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in product.inventories %}
+                        <tr class="odd:bg-white even:bg-slate-50/70">
+                            <td class="px-4 py-3 border-b border-slate-100 font-mono text-sm">{{ item.bodega }}</td>
+                            <td class="px-4 py-3 border-b border-slate-100">{{ item.nombre or 'Sin nombre' }}</td>
+                            <td class="px-4 py-3 border-b border-slate-100 text-right font-semibold">{{ '%.2f'|format(item.cantidad) }}</td>
+                            <td class="px-4 py-3 border-b border-slate-100 text-right">${{ '%.2f'|format(item.precio) }}</td>
+                            <td class="px-4 py-3 border-b border-slate-100 text-right">${{ '%.2f'|format(item.total) }}</td>
+                            <td class="px-4 py-3 border-b border-slate-100 text-right">
+                                {{ item.fecha.strftime('%d/%m/%Y') if item.fecha else 'Sin fecha' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-sky-50">
+                            <td colspan="2" class="px-4 py-3 font-semibold text-slate-700">Totales</td>
+                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">{{ '%.2f'|format(product.total_unidades) }}</td>
+                            <td class="px-4 py-3"></td>
+                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">${{ '%.2f'|format(product.total_valor) }}</td>
+                            <td class="px-4 py-3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {% else %}
+            <div class="stock-empty">
+                El producto existe en `reporte_maestro`, pero no tiene inventario visible en `rsi_inv_pordia`.
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endfor %}
+</div>
+{% endblock %}
