@@ -362,37 +362,6 @@
     display: none;
 }
 
-.product-choice-box {
-    margin-top: 0.75rem;
-    padding: 0.9rem 1rem;
-    border: 1px solid #dbeafe;
-    border-radius: 1rem;
-    background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
-}
-
-.product-choice-box.hidden {
-    display: none;
-}
-
-.product-choice-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-bottom: 0.55rem;
-}
-
-.product-choice-title {
-    color: #1f2937;
-    font-size: 0.82rem;
-    font-weight: 700;
-}
-
-.product-choice-note {
-    color: #64748b;
-    font-size: 0.76rem;
-}
-
 .description-box {
     min-height: 8.5rem;
 }
@@ -766,15 +735,6 @@
                                     <i class="fas fa-spinner fa-spin"></i>
                                     Buscando...
                                 </div>
-                                <div id="productChoiceBox" class="product-choice-box hidden">
-                                    <div class="product-choice-head">
-                                        <div class="product-choice-title">Resultados encontrados</div>
-                                        <div id="productChoiceNote" class="product-choice-note"></div>
-                                    </div>
-                                    <select id="productResultSelect" class="select-field text-sm">
-                                        <option value="">Selecciona un producto</option>
-                                    </select>
-                                </div>
                             </div>
 
                             <div class="field-span-full">
@@ -1014,7 +974,6 @@ const INITIAL_FORM = {
 let providerOptions = [];
 let lastAutoNcNumber = '';
 let ncNumberManuallyEdited = false;
-let productSearchResults = [];
 
 function buildAutoNcNumber() {
     const dateInput = document.getElementById('dateDetectedInput');
@@ -1244,9 +1203,6 @@ function clearProductSnapshot() {
     const codInput = document.getElementById('itemcodInput');
     const branchUnitsInput = document.getElementById('branchUnitsInput');
     const branchTotalUsdInput = document.getElementById('branchTotalUsdInput');
-    const productChoiceBox = document.getElementById('productChoiceBox');
-    const productResultSelect = document.getElementById('productResultSelect');
-    const productChoiceNote = document.getElementById('productChoiceNote');
 
     statusDiv.classList.add('hidden');
     descInput.value = '';
@@ -1256,37 +1212,6 @@ function clearProductSnapshot() {
     branchTotalUsdInput.value = '';
     descInput.setAttribute('readonly', '');
     marcaInput.setAttribute('readonly', '');
-    productSearchResults = [];
-    productChoiceBox.classList.add('hidden');
-    productResultSelect.innerHTML = '<option value="">Selecciona un producto</option>';
-    productChoiceNote.textContent = '';
-}
-
-function buildProductOptionLabel(item) {
-    const parts = [item.itemcod || 'Sin item', item.nombre || 'Sin descripcion'];
-    if (item.marca) parts.push(item.marca);
-    if (item.barcode) parts.push(item.barcode);
-    return parts.join(' · ');
-}
-
-function renderProductChoices(results, empresa) {
-    const productChoiceBox = document.getElementById('productChoiceBox');
-    const productResultSelect = document.getElementById('productResultSelect');
-    const productChoiceNote = document.getElementById('productChoiceNote');
-
-    productSearchResults = results;
-    productResultSelect.innerHTML = '';
-
-    results.forEach((item, index) => {
-        const option = document.createElement('option');
-        option.value = String(index);
-        option.textContent = buildProductOptionLabel(item);
-        productResultSelect.appendChild(option);
-    });
-
-    productResultSelect.value = '0';
-    productChoiceNote.textContent = `${results.length} coincidencias${empresa ? ' para la sucursal seleccionada' : ''}`;
-    productChoiceBox.classList.toggle('hidden', results.length <= 1);
 }
 
 function applyProductSnapshot(item, empresa) {
@@ -1336,12 +1261,7 @@ function fetchProductSnapshot(q) {
             })
             .then(res => {
                 if (res.success && res.data.length > 0) {
-                    renderProductChoices(res.data, empresa);
                     applyProductSnapshot(res.data[0], empresa);
-                    if (res.data.length > 1) {
-                        statusDiv.classList.remove('hidden');
-                        statusDiv.innerHTML = `<i class="fas fa-layer-group text-sky-600"></i> Se encontraron ${res.data.length} coincidencias. Puedes cambiar entre ellas arriba.`;
-                    }
                 } else {
                     clearProductSnapshot();
                     statusDiv.classList.remove('hidden');
@@ -1375,14 +1295,6 @@ document.getElementById('empresaSelect').addEventListener('change', function () 
     const q = document.getElementById('barcodeInput').value.trim();
     if (q.length >= 3) {
         fetchProductSnapshot(q);
-    }
-});
-
-document.getElementById('productResultSelect').addEventListener('change', function (event) {
-    const empresa = document.getElementById('empresaSelect').value.trim();
-    const index = Number(event.target.value);
-    if (Number.isInteger(index) && productSearchResults[index]) {
-        applyProductSnapshot(productSearchResults[index], empresa);
     }
 });
 

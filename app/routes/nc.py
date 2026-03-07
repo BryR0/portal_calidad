@@ -256,6 +256,7 @@ def _catalogs():
         cat_gravedad=GRAVEDAD,
         cat_motivo=MOTIVO,
         cat_proveedor_tipo=PROVEEDOR_TIPO,
+        cat_proveedor_abbrev=PROVEEDOR_ABBREV,
         gravedad_color=GRAVEDAD_COLOR,
         status_color=STATUS_COLOR,
     )
@@ -293,11 +294,16 @@ def _catalogs():
 
 # ── NC number generator ───────────────────────────────────────────────────────
 def _generate_nc_number(provider_type, detected_date):
-    prefix = detected_date.strftime('%d%m%Y')
-    abbrev = PROVEEDOR_ABBREV.get(provider_type, 'XX')
-    count = NonConformity.query.filter(
-        NonConformity.nc_number.like(f'{prefix}-%')).count() + 1
-    return f'{prefix}-{count:03d}-{abbrev}'
+    base_number = f"{detected_date.strftime('%d%m%Y-%H%M')}-{PROVEEDOR_ABBREV.get(provider_type, 'XX')}"
+    if not NonConformity.query.filter_by(nc_number=base_number).first():
+        return base_number
+
+    suffix = 2
+    while True:
+        candidate = f'{base_number}-{suffix:02d}'
+        if not NonConformity.query.filter_by(nc_number=candidate).first():
+            return candidate
+        suffix += 1
 
 
 # ── Query builder (filters) ───────────────────────────────────────────────────
@@ -345,7 +351,7 @@ def _apply_form_to_nc(nc, form, *, is_new=False):
     date_str = form.get('date_detected')
     detected_date = (datetime.strptime(date_str, '%Y-%m-%d').date()
                      if date_str else date.today())
-    time_str = form.get('time_detected') or '00:00'
+    time_str = form.get('time_detected') or datetime.now().strftime('%H:%M')
     detected_time = datetime.strptime(time_str, '%H:%M').time()
 
     provider_type = form.get('provider_tipo', '').strip()
@@ -477,6 +483,7 @@ def create_nc():
             flash(f'Error al registrar NC: {exc}', 'error')
 
     return render_template('nc/create.html', today=date.today().isoformat(),
+                           current_time=datetime.now().strftime('%H:%M'),
                            is_edit=False, nc=None, **_catalogs())
 
 
@@ -504,6 +511,7 @@ def edit_nc(id):
         'nc/create.html',
         today=(nc.date_detected.isoformat()
                if nc.date_detected else date.today().isoformat()),
+        current_time=datetime.now().strftime('%H:%M'),
         is_edit=True,
         nc=nc,
         **_catalogs(),
@@ -1123,15 +1131,21 @@ def _build_list_workbook(ncs):
         ('AcciÃ³n Correctiva', 40), ('Estado',         11), ('Fecha Cierre',   13),
     ]
     COLS = [
-        ('Nro NC',             18), ('Fecha',            12), ('Hora',             8),
-        ('Detectada',          14), ('Empresa',          20), ('T. Proveedor',    13),
-        ('Seccion',            20), ('Titulo',           40), ('Marca',           14),
-        ('Causa',              14), ('Motivo',           12), ('Gravedad',        11),
+        ('Nro NC',             18), ('Fecha',
+                                     12), ('Hora',             8),
+        ('Detectada',          14), ('Empresa',
+                                     20), ('T. Proveedor',    13),
+        ('Seccion',            20), ('Titulo',
+                                     40), ('Marca',           14),
+        ('Causa',              14), ('Motivo',
+                                     12), ('Gravedad',        11),
         ('Evaluacion',         18), ('Clasificacion NC', 28), ('Cod. Item',       14),
         ('Cod. Barra',         18), ('Producto NC',      24), ('Inv. Sucursal',   13),
         ('Valor Sucursal',     14), ('Unidades NC',      12), ('Total NC $',      12),
-        ('Accion 1',           34), ('Accion 2',         34), ('Accion 3',        34),
-        ('Accion Correctiva',  40), ('Estado',           11), ('Fecha Cierre',    13),
+        ('Accion 1',           34), ('Accion 2',
+                                     34), ('Accion 3',        34),
+        ('Accion Correctiva',  40), ('Estado',
+                                     11), ('Fecha Cierre',    13),
     ]
     n = len(COLS)
     last_col = get_column_letter(n)

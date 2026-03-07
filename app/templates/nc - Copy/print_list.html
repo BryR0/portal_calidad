@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bandeja de No Conformidades - Reporte</title>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --muted: #475569;
+            --line: #d7e3f2;
+            --line-strong: #bfdbfe;
+            --panel: #ffffff;
+            --panel-soft: #f8fbff;
+            --brand: #1d4ed8;
+            --brand-deep: #1e3a8a;
+            --brand-soft: #dbeafe;
+            --success-bg: #dcfce7;
+            --success-ink: #166534;
+            --warn-bg: #fef3c7;
+            --warn-ink: #92400e;
+            --danger-bg: #fee2e2;
+            --danger-ink: #b91c1c;
+            --neutral-bg: #e2e8f0;
+            --neutral-ink: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background: linear-gradient(180deg, #eef4fb 0%, #f6f9fe 100%);
+        }
+
+        .print-shell {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 18px 16px 72px;
+        }
+
+        /* Toolbar (screen only) */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .toolbar-note {
+            margin: 0 0 10px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .toolbar-btn {
+            appearance: none;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.16s ease;
+        }
+
+        .toolbar-btn:hover { transform: translateY(-1px); }
+
+        .toolbar-btn.primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+            color: #ffffff;
+            box-shadow: 0 12px 26px -20px rgba(37, 99, 235, 0.92);
+        }
+
+        .toolbar-btn.secondary {
+            background: #ffffff;
+            color: var(--brand-deep);
+            border: 1px solid var(--line-strong);
+        }
+
+        /* Page container */
+        .page {
+            width: min(1240px, 100%);
+            margin: 0 auto;
+            background: var(--panel);
+            border: 1px solid var(--line-strong);
+            border-radius: 18px;
+            box-shadow: 0 24px 54px -44px rgba(15, 23, 42, 0.52);
+            padding: 16px;
+        }
+
+        /* Header */
+        .report-header {
+            padding: 16px 18px;
+            border-radius: 16px;
+            background:
+                radial-gradient(circle at top right, rgba(191, 219, 254, 0.26), transparent 26%),
+                linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 52%, #3b82f6 100%);
+            color: #ffffff;
+        }
+
+        .report-header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .report-kicker {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            opacity: 0.82;
+        }
+
+        .report-title {
+            margin: 6px 0 0;
+            font-size: 22px;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+        }
+
+        .report-subtitle {
+            margin: 6px 0 0;
+            font-size: 12px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .report-meta-box {
+            min-width: 200px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.14);
+            border: 1px solid rgba(255,255,255,0.18);
+            font-size: 11px;
+            line-height: 1.6;
+            text-align: right;
+        }
+
+        .report-stats {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.15);
+            font-size: 11px;
+        }
+
+        .report-stats .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+        }
+
+        .stat-sep {
+            width: 1px;
+            height: 20px;
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* Filter chips (screen) */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.22);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .filter-chip-label { opacity: 0.75; }
+
+        /* Table */
+        .table-wrap {
+            margin-top: 12px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        thead tr {
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%);
+            border-bottom: 1px solid var(--line-strong);
+        }
+
+        th {
+            padding: 9px 10px;
+            text-align: left;
+            color: var(--brand-deep);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        th.center { text-align: center; }
+
+        tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+
+        tbody tr:nth-child(even) { background: #fafbff; }
+
+        td {
+            padding: 8px 10px;
+            vertical-align: top;
+            color: var(--ink);
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        td.center { text-align: center; }
+
+        .nc-num {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--brand);
+            white-space: nowrap;
+        }
+
+        .nc-date {
+            white-space: nowrap;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .nc-title {
+            font-weight: 600;
+            color: var(--ink);
+            max-width: 280px;
+        }
+
+        .nc-sub {
+            margin-top: 2px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 9px;
+            color: #94a3b8;
+        }
+
+        .nc-product {
+            max-width: 200px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .nc-empresa {
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge-abierta  { background: var(--brand-soft);   color: var(--brand); }
+        .badge-cerrada  { background: var(--neutral-bg);    color: var(--neutral-ink); }
+        .badge-alta     { background: var(--danger-bg);     color: var(--danger-ink); }
+        .badge-media    { background: var(--warn-bg);       color: var(--warn-ink); }
+        .badge-baja     { background: var(--success-bg);    color: var(--success-ink); }
+
+        /* Footer */
+        .report-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--line);
+            color: #64748b;
+            font-size: 9px;
+        }
+
+        /* ── Print styles ── */
+        @media print {
+            body { background: #ffffff; }
+
+            .screen-only { display: none !important; }
+
+            .print-shell {
+                max-width: none;
+                padding: 0;
+            }
+
+            .page {
+                width: auto;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .report-header {
+                padding: 8px 10px;
+                border-radius: 0;
+            }
+
+            .report-title { font-size: 14px; }
+
+            .report-subtitle { font-size: 8px; }
+
+            .report-meta-box {
+                min-width: 130px;
+                padding: 5px 7px;
+                font-size: 8px;
+            }
+
+            .report-stats {
+                padding: 5px 8px;
+                font-size: 9px;
+                gap: 12px;
+                margin-top: 6px;
+            }
+
+            .stat-value { font-size: 11px; }
+
+            .filter-chip { font-size: 8px; }
+
+            .filter-bar { margin-top: 6px; gap: 4px; }
+
+            .table-wrap {
+                margin-top: 8px;
+                border-radius: 0;
+            }
+
+            th { font-size: 8px; padding: 5px 6px; }
+            td { font-size: 9px; padding: 5px 6px; }
+
+            .nc-num  { font-size: 9px; }
+            .nc-date { font-size: 8px; }
+            .nc-title { max-width: 200px; font-size: 9px; }
+            .nc-sub  { font-size: 7px; }
+            .nc-product { font-size: 8px; max-width: 140px; }
+            .nc-empresa { font-size: 8px; }
+
+            .badge { font-size: 7px; padding: 2px 5px; }
+
+            tbody tr { border-bottom: 1px solid #e2e8f0; }
+
+            .report-footer { margin-top: 6px; font-size: 8px; }
+
+            @page {
+                size: A4 landscape;
+                margin: 6mm 8mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="print-shell">
+
+    <div class="toolbar screen-only">
+        <a href="{{ url_for('nc.list_nc') }}" class="toolbar-btn secondary">Volver a la lista</a>
+        <button type="button" class="toolbar-btn primary" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>
+    <p class="toolbar-note screen-only">Si el navegador elimina colores al imprimir, activa la impresion de fondos.</p>
+
+    <main class="page">
+        <header class="report-header">
+            <div class="report-header-top">
+                <div>
+                    <p class="report-kicker">Grupo Riba Smith | Gestion de Calidad</p>
+                    <h1 class="report-title">Bandeja de No Conformidades</h1>
+                    <p class="report-subtitle">Listado completo con filtros aplicados. Generado desde el Portal de Calidad.</p>
+                </div>
+                <div class="report-meta-box">
+                    <strong>Codigo:</strong> RS-SM-GC-REG-0001<br>
+                    <strong>Impreso:</strong> {{ now.strftime('%d/%m/%Y %H:%M') }}<br>
+                    <strong>Registros:</strong> {{ ncs|length }}
+                </div>
+            </div>
+
+            <div class="report-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ ncs|length }}</span>
+                    <span class="stat-label">total</span>
+                </div>
+                {% set abiertas = ncs|selectattr('status','equalto','Abierta')|list|length %}
+                {% set cerradas = ncs|length - abiertas %}
+                <div class="stat-sep"></div>
+                <div class="stat">
+                    <span class="stat-value">{{ abiertas }}</span>
+                    <span class="stat-label">abiertas</span>
+                </div>
+                <div class="stat-sep"></div>
+                <div class="stat">
+                    <span class="stat-value">{{ cerradas }}</span>
+                    <span class="stat-label">cerradas</span>
+                </div>
+                {% set altas = ncs|selectattr('gravity','in',['Alta','Muy Alta'])|list|length %}
+                {% if altas > 0 %}
+                <div class="stat-sep"></div>
+                <div class="stat">
+                    <span class="stat-value">{{ altas }}</span>
+                    <span class="stat-label">gravedad alta</span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% set active_filters = [] %}
+            {% if filters.get('q') %}{% set _ = active_filters.append(('Busqueda', filters.get('q'))) %}{% endif %}
+            {% if filters.get('status') %}{% set _ = active_filters.append(('Estado', filters.get('status'))) %}{% endif %}
+            {% if filters.get('gravity') %}{% set _ = active_filters.append(('Gravedad', filters.get('gravity'))) %}{% endif %}
+            {% if filters.get('date_from') %}{% set _ = active_filters.append(('Desde', filters.get('date_from'))) %}{% endif %}
+            {% if filters.get('date_to') %}{% set _ = active_filters.append(('Hasta', filters.get('date_to'))) %}{% endif %}
+
+            {% if active_filters %}
+            <div class="filter-bar">
+                <span class="filter-chip"><span class="filter-chip-label">Filtros:</span></span>
+                {% for label, val in active_filters %}
+                <span class="filter-chip">
+                    <span class="filter-chip-label">{{ label }}:</span>
+                    <strong>{{ val }}</strong>
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </header>
+
+        {% if ncs %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N° NC</th>
+                        <th>Fecha</th>
+                        <th>Sucursal</th>
+                        <th>Titulo / Hallazgo</th>
+                        <th>Producto</th>
+                        <th>Proveedor</th>
+                        <th class="center">Gravedad</th>
+                        <th class="center">Estado</th>
+                        <th>Cierre</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for nc in ncs %}
+                    <tr>
+                        <td>
+                            <span class="nc-num">{{ nc.nc_number }}</span>
+                        </td>
+                        <td>
+                            <span class="nc-date">{{ nc.date_detected.strftime('%d/%m/%Y') if nc.date_detected else '—' }}</span>
+                        </td>
+                        <td>
+                            <span class="nc-empresa">{{ nc.empresa or '—' }}</span>
+                        </td>
+                        <td>
+                            <div class="nc-title">{{ nc.title or '—' }}</div>
+                            {% if nc.section %}
+                            <div class="nc-sub">{{ nc.section }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="nc-product">{{ nc.product_affected or '—' }}</div>
+                            {% if nc.product_code %}
+                            <div class="nc-sub">{{ nc.product_code }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="nc-empresa">{{ nc.provider_name or '—' }}</span>
+                        </td>
+                        <td class="center">
+                            {% if nc.gravity %}
+                            <span class="badge {% if nc.gravity in ('Alta','Muy Alta') %}badge-alta{% elif nc.gravity == 'Media' %}badge-media{% else %}badge-baja{% endif %}">
+                                {{ nc.gravity }}
+                            </span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="center">
+                            <span class="badge {% if nc.status == 'Abierta' %}badge-abierta{% else %}badge-cerrada{% endif %}">
+                                {{ nc.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="nc-date">{{ nc.closure_date.strftime('%d/%m/%Y') if nc.closure_date else '—' }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="padding: 40px; text-align: center; color: #94a3b8; font-size: 13px;">
+            No hay registros que coincidan con los filtros aplicados.
+        </div>
+        {% endif %}
+
+        <footer class="report-footer">
+            <span>RS-SM-GC-REG-0001</span>
+            <span>Portal de Calidad — Grupo Riba Smith</span>
+            <span>Impreso el {{ now.strftime('%d/%m/%Y %H:%M') }}</span>
+        </footer>
+    </main>
+</div>
+
+<script>
+if (new URLSearchParams(window.location.search).get('auto') === '1') {
+    window.addEventListener('load', () => setTimeout(() => window.print(), 400));
+}
+</script>
+</body>
+</html>

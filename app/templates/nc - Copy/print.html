@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NC {{ nc.nc_number }} - Reporte</title>
+    <style>
+        /* ── Paleta unificada con Excel ─────────────────────────── */
+        :root {
+            --blue-dark:   #1E3A8A;
+            --blue-mid:    #2563EB;
+            --blue-soft:   #EEF2FF;
+            --blue-pale:   #EFF6FF;
+            --blue-border: #C7D2FE;
+            --blue-subtle: #BFDBFE;
+            --accent:      #F6AD55;
+            --white:       #FFFFFF;
+            --gray-bg:     #F8FAFC;
+            --gray-line:   #E2E8F0;
+            --text-dark:   #0F172A;
+            --text-mid:    #475569;
+            --text-light:  #94A3B8;
+
+            --consumer-bg: #FFFBEB; --consumer-bd: #FCD34D; --consumer-txt: #92400E;
+            --inocuity-bg: #FFF1F2; --inocuity-bd: #FCA5A5; --inocuity-txt: #991B1B;
+            --quality-bg:  #FFF7ED; --quality-bd:  #FDBA74; --quality-txt:  #9A3412;
+            --no-bg:       #E2E8F0; --no-txt:      #475569;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+        body {
+            font-family: "Segoe UI", Calibri, Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            background: linear-gradient(180deg, #e8f0fb 0%, #f4f7fd 100%);
+        }
+
+        /* ── Shell ──────────────────────────────────────────────── */
+        .shell {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 16px 60px;
+        }
+
+        /* ── Toolbar ─────────────────────────────────────────────── */
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .toolbar-note {
+            text-align: right;
+            font-size: 11px;
+            color: var(--text-mid);
+            margin-bottom: 10px;
+        }
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform .14s, box-shadow .14s;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-dark) 100%);
+            color: #fff;
+            box-shadow: 0 10px 24px -16px rgba(37,99,235,.85);
+        }
+        .btn-secondary {
+            background: #fff;
+            color: var(--blue-dark);
+            border: 1px solid var(--blue-border);
+        }
+
+        /* ── Page card ───────────────────────────────────────────── */
+        .page {
+            background: var(--white);
+            border: 1px solid var(--blue-border);
+            border-radius: 16px;
+            box-shadow: 0 20px 48px -36px rgba(15,23,42,.45);
+            overflow: hidden;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           HEADER  — azul oscuro + borde naranja inferior
+        ══════════════════════════════════════════════════════════ */
+        .rh {
+            background: var(--blue-dark);
+            border-bottom: 3px solid var(--accent);
+            padding: 14px 18px 12px;
+            color: #fff;
+        }
+
+        .rh-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .rh-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            line-height: 1.1;
+        }
+
+        .rh-sub {
+            margin-top: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            opacity: .78;
+        }
+
+        .rh-code {
+            min-width: 190px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.18);
+            font-size: 10px;
+            line-height: 1.55;
+            text-align: right;
+            color: var(--blue-subtle);
+        }
+        .rh-code strong { color: #fff; }
+
+        /* Meta cards row */
+        .meta-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .meta-card {
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,.13);
+            border: 1px solid rgba(255,255,255,.18);
+        }
+        .meta-label {
+            display: block;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .09em;
+            text-transform: uppercase;
+            opacity: .75;
+            margin-bottom: 3px;
+        }
+        .meta-value {
+            display: block;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .badge-open    { background: #dbeafe; color: var(--blue-mid); }
+        .badge-closed  { background: var(--no-bg); color: var(--text-mid); }
+        .badge-high    { background: #fee2e2; color: #b91c1c; }
+        .badge-medium  { background: #fef3c7; color: #92400e; }
+        .badge-low     { background: #dcfce7; color: #166534; }
+
+        /* ══════════════════════════════════════════════════════════
+           BODY
+        ══════════════════════════════════════════════════════════ */
+        .body-grid {
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 0;
+            padding: 12px;
+            gap: 10px;
+        }
+
+        .stack { display: grid; gap: 10px; align-content: start; }
+
+        /* ── Panel ───────────────────────────────────────────────── */
+        .panel {
+            border: 1px solid var(--gray-line);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* Sección header — mismo patrón que Excel */
+        .panel-head {
+            background: var(--blue-dark);
+            border-bottom: 2px solid var(--accent);
+            padding: 7px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .panel-title {
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .09em;
+            text-transform: uppercase;
+        }
+        .panel-sub {
+            color: var(--blue-subtle);
+            font-size: 9px;
+            font-weight: 500;
+        }
+
+        .panel-body { padding: 10px; background: var(--white); }
+
+        /* ── Label-value grid (espejo del Excel) ─────────────────── */
+        .lv-grid {
+            display: grid;
+            gap: 6px;
+        }
+        .lv-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .lv-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .lv-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .span-2 { grid-column: span 2; }
+        .span-3 { grid-column: span 3; }
+        .span-4 { grid-column: span 4; }
+
+        .lv {
+            border: 1px solid var(--gray-line);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .lv-label {
+            display: block;
+            padding: 4px 8px 3px;
+            background: var(--blue-soft);
+            color: var(--blue-dark);
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--blue-border);
+        }
+        .lv-value {
+            display: block;
+            padding: 5px 8px;
+            background: var(--white);
+            color: var(--text-dark);
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .lv-value.empty { color: var(--text-light); font-style: italic; font-weight: 400; }
+
+        /* ── Text block (descripción / análisis) ─────────────────── */
+        .txt-block {
+            border: 1px solid var(--gray-line);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .txt-block-label {
+            display: block;
+            padding: 4px 8px 3px;
+            background: var(--blue-soft);
+            color: var(--blue-dark);
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--blue-border);
+        }
+        .txt-block-body {
+            padding: 8px 10px;
+            background: var(--white);
+            font-size: 11px;
+            line-height: 1.55;
+            color: var(--text-dark);
+            white-space: pre-wrap;
+        }
+
+        /* ── Métricas ─────────────────────────────────────────────── */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .metric {
+            border: 1px solid var(--blue-border);
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+        }
+        .metric-label {
+            display: block;
+            padding: 4px 6px 3px;
+            background: var(--blue-soft);
+            color: var(--blue-mid);
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--blue-border);
+        }
+        .metric-value {
+            display: block;
+            padding: 6px 6px 7px;
+            background: var(--blue-pale);
+            color: var(--blue-dark);
+            font-size: 17px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        /* ── Impacto pills ────────────────────────────────────────── */
+        .impact-list { display: grid; gap: 6px; }
+        .impact-row {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 0;
+            border: 1px solid var(--gray-line);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .impact-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--no-bg);
+            color: var(--no-txt);
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            border-right: 1px solid var(--gray-line);
+        }
+        .impact-row.active-consumer { border-color: var(--consumer-bd); }
+        .impact-row.active-consumer .impact-pill { background: var(--consumer-bg); color: var(--consumer-txt); border-right-color: var(--consumer-bd); border-left: 3px solid var(--consumer-bd); }
+        .impact-row.active-consumer .impact-text { background: var(--consumer-bg); }
+
+        .impact-row.active-inocuity { border-color: var(--inocuity-bd); }
+        .impact-row.active-inocuity .impact-pill { background: var(--inocuity-bg); color: var(--inocuity-txt); border-right-color: var(--inocuity-bd); border-left: 3px solid var(--inocuity-bd); }
+        .impact-row.active-inocuity .impact-text { background: var(--inocuity-bg); }
+
+        .impact-row.active-quality { border-color: var(--quality-bd); }
+        .impact-row.active-quality .impact-pill { background: var(--quality-bg); color: var(--quality-txt); border-right-color: var(--quality-bd); border-left: 3px solid var(--quality-bd); }
+        .impact-row.active-quality .impact-text { background: var(--quality-bg); }
+
+        .impact-text {
+            padding: 8px 10px;
+            background: var(--gray-bg);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ── Acciones ─────────────────────────────────────────────── */
+        .action-list { display: grid; gap: 6px; }
+        .action-row {
+            display: grid;
+            grid-template-columns: 30px 1fr;
+            gap: 0;
+            border: 1px solid var(--gray-line);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .action-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--blue-dark);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            border-right: 1px solid rgba(255,255,255,.15);
+        }
+        .action-text {
+            padding: 8px 10px;
+            background: var(--white);
+            font-size: 10px;
+            line-height: 1.5;
+            color: var(--text-dark);
+            white-space: pre-wrap;
+        }
+
+        /* ── Firmas ───────────────────────────────────────────────── */
+        .sig-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 12px 12px 0;
+        }
+        .sig-box {
+            border-top: 2px solid var(--blue-dark);
+            padding-top: 10px;
+        }
+        .sig-title { font-size: 9px; font-weight: 700; color: var(--text-mid); }
+        .sig-line  { margin-top: 18px; font-size: 8px; color: var(--text-light); }
+
+        /* ── Footer ──────────────────────────────────────────────── */
+        .rfoot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 10px 12px 12px;
+            padding-top: 8px;
+            border-top: 2px solid var(--accent);
+            color: var(--text-mid);
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           PRINT
+        ══════════════════════════════════════════════════════════ */
+        @media print {
+            body { background: #fff; }
+            .screen-only { display: none !important; }
+            .shell { max-width: none; padding: 0; }
+            .page { border: none; border-radius: 0; box-shadow: none; }
+
+            .rh { padding: 8px 10px 7px; }
+            .rh-title { font-size: 13px; }
+            .rh-sub { font-size: 8px; }
+            .rh-code { font-size: 8px; padding: 5px 8px; min-width: 140px; }
+
+            .meta-row { gap: 4px; margin-top: 7px; }
+            .meta-card { padding: 5px 7px; }
+            .meta-label { font-size: 7px; }
+            .meta-value { font-size: 10px; }
+
+            .body-grid { padding: 6px; gap: 5px; }
+            .stack { gap: 5px; }
+
+            .panel-head { padding: 4px 8px; }
+            .panel-title { font-size: 8px; }
+            .panel-sub { display: none; }
+            .panel-body { padding: 6px; }
+
+            .lv-grid { gap: 4px; }
+            .lv-label { font-size: 7px; padding: 2px 6px; }
+            .lv-value { font-size: 9px; padding: 3px 6px; }
+
+            .txt-block { margin-top: 4px; }
+            .txt-block-label { font-size: 7px; padding: 2px 6px; }
+            .txt-block-body { font-size: 9px; padding: 5px 7px; line-height: 1.35; }
+
+            .metrics { gap: 4px; margin-top: 5px; }
+            .metric-label { font-size: 7px; padding: 2px 4px; }
+            .metric-value { font-size: 12px; padding: 4px; }
+
+            .impact-list { gap: 4px; }
+            .impact-row { border-radius: 5px; }
+            .impact-pill { font-size: 8px; }
+            .impact-text { font-size: 9px; padding: 5px 8px; }
+
+            .action-list { gap: 4px; }
+            .action-badge { font-size: 10px; }
+            .action-text { font-size: 9px; padding: 5px 8px; }
+
+            .sig-grid { margin: 7px 6px 0; gap: 10px; }
+            .sig-title { font-size: 8px; }
+            .sig-line  { font-size: 7px; margin-top: 12px; }
+
+            .rfoot { margin: 6px 6px 6px; padding-top: 5px; font-size: 8px; }
+
+            @page { size: A4 landscape; margin: 5mm; }
+        }
+
+        @media screen and (max-width: 860px) {
+            .meta-row, .metrics { grid-template-columns: repeat(2, 1fr); }
+            .body-grid, .lv-grid.cols-4, .lv-grid.cols-3 { grid-template-columns: 1fr; }
+            .lv-grid.cols-2 { grid-template-columns: 1fr; }
+            .span-2, .span-3, .span-4 { grid-column: span 1; }
+            .sig-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+{# ── Macros ──────────────────────────────────────────────────────────────── #}
+{% macro lv(label, value, empty_text='Sin datos') -%}
+<div class="lv">
+    <span class="lv-label">{{ label }}</span>
+    <span class="lv-value{% if not value %} empty{% endif %}">{{ value or empty_text }}</span>
+</div>
+{%- endmacro %}
+
+{% macro lv_if(label, value, span='') -%}
+{% if value %}<div{% if span %} class="{{ span }}"{% endif %}>{{ lv(label, value) }}</div>{% endif %}
+{%- endmacro %}
+
+{% set gravity_class = 'badge-low' %}
+{% if nc.gravity in ('Alta', 'Muy Alta') %}{% set gravity_class = 'badge-high' %}
+{% elif nc.gravity == 'Media' %}{% set gravity_class = 'badge-medium' %}{% endif %}
+
+<div class="shell">
+
+    <div class="toolbar screen-only">
+        <a href="{{ url_for('nc.view_nc', id=nc.id) }}" class="btn btn-secondary">← Volver</a>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir / PDF</button>
+    </div>
+    <p class="toolbar-note screen-only">Para conservar colores al imprimir, activa la impresión de fondos en el navegador.</p>
+
+    <main class="page">
+
+        {# ══ HEADER ════════════════════════════════════════════════════════════ #}
+        <header class="rh">
+            <div class="rh-top">
+                <div>
+                    <div class="rh-title">Reporte de Desviaciones &nbsp;/&nbsp; Non Conforming Report</div>
+                    <div class="rh-sub">Grupo Riba Smith &mdash; Gestión de Calidad</div>
+                </div>
+                <div class="rh-code">
+                    <strong>Código:</strong> RS-SM-GC-REG-0001<br>
+                    <strong>Impreso:</strong> {{ now.strftime('%d/%m/%Y %H:%M') }}
+                </div>
+            </div>
+
+            <div class="meta-row">
+                <div class="meta-card">
+                    <span class="meta-label">N° NC</span>
+                    <span class="meta-value" style="font-family:Consolas,monospace;font-size:12px;">{{ nc.nc_number }}</span>
+                </div>
+                <div class="meta-card">
+                    <span class="meta-label">Fecha</span>
+                    <span class="meta-value">{{ nc.date_detected.strftime('%d/%m/%Y') if nc.date_detected else '—' }}</span>
+                </div>
+                <div class="meta-card">
+                    <span class="meta-label">Hora</span>
+                    <span class="meta-value">{{ nc.time_detected.strftime('%H:%M') if nc.time_detected else '—' }}</span>
+                </div>
+                <div class="meta-card">
+                    <span class="meta-label">Gravedad</span>
+                    <span class="meta-value">
+                        {% if nc.gravity %}<span class="badge {{ gravity_class }}">{{ nc.gravity }}</span>{% else %}—{% endif %}
+                    </span>
+                </div>
+                <div class="meta-card">
+                    <span class="meta-label">Estado</span>
+                    <span class="meta-value">
+                        <span class="badge {% if nc.status == 'Abierta' %}badge-open{% else %}badge-closed{% endif %}">{{ nc.status }}</span>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        {# ══ BODY ══════════════════════════════════════════════════════════════ #}
+        <div class="body-grid">
+
+            {# Columna izquierda #}
+            <div class="stack">
+
+                {# S1 — IDENTIFICACIÓN #}
+                <section class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">1. &nbsp;Identificación y Origen</span>
+                        <span class="panel-sub">Datos principales del reporte y del proveedor</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="lv-grid cols-4">
+                            {{ lv('Empresa', nc.empresa) }}
+                            {{ lv('N° NC', nc.nc_number) }}
+                            {{ lv('Detectada por', nc.detected_by_type) }}
+                            {{ lv('Tipo desviación', nc.deviation_type) }}
+                            {{ lv('Proveedor', nc.provider_name) }}
+                            {{ lv('Tipo proveedor', nc.provider_tipo) }}
+                            {{ lv('Depto Rimith', nc.rimith_dept) }}
+                            {{ lv('Estado', nc.status) }}
+                            <div class="span-4">{{ lv('Sección', nc.section) }}</div>
+                        </div>
+                    </div>
+                </section>
+
+                {# S2 — HALLAZGO #}
+                <section class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">2. &nbsp;Hallazgo</span>
+                        <span class="panel-sub">Título y descripción consolidada del evento</span>
+                    </div>
+                    <div class="panel-body">
+                        {{ lv('Título', nc.title) }}
+                        <div class="txt-block" style="margin-top:6px;">
+                            <span class="txt-block-label">Descripción</span>
+                            <div class="txt-block-body">{{ nc.description or 'Sin descripción.' }}</div>
+                        </div>
+                    </div>
+                </section>
+
+                {# S3 — PRODUCTO #}
+                <section class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">3. &nbsp;Producto No Conforme</span>
+                        <span class="panel-sub">Datos comerciales y snapshot de inventario</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="lv-grid cols-4">
+                            <div class="span-4">{{ lv('Descripción del producto', nc.product_affected) }}</div>
+                            {{ lv('Marca', nc.marca) }}
+                            {{ lv('Lote', nc.lot) }}
+                            {{ lv('Cód. Ítem', nc.product_code) }}
+                            {{ lv('Cód. Barra', nc.barcode) }}
+                            {{ lv('F. Vencimiento', nc.expiration_date.strftime('%d/%m/%Y') if nc.expiration_date else '') }}
+                            <div class="span-3">{{ lv('Estado producto NC', nc.nc_product_status) }}</div>
+                        </div>
+
+                        <div class="metrics">
+                            <div class="metric">
+                                <span class="metric-label">Inv. Sucursal</span>
+                                <span class="metric-value">{{ '%.2f'|format(nc.branch_total_units or 0) }}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Valor Sucursal</span>
+                                <span class="metric-value">${{ '{:,.2f}'.format(nc.branch_total_usd or 0) }}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Unidades NC</span>
+                                <span class="metric-value">{{ '%.2f'|format(nc.total_units or 0) }}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Total NC $</span>
+                                <span class="metric-value">${{ '{:,.2f}'.format(nc.total_usd or 0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>{# /col izq #}
+
+            {# Columna derecha #}
+            <div class="stack">
+
+                {# S4 — CLASIFICACIÓN #}
+                <section class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">4. &nbsp;Clasificación y Análisis</span>
+                        <span class="panel-sub">Criterio técnico aplicado</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="lv-grid cols-2">
+                            {{ lv_if('Causa', nc.cause) }}
+                            {{ lv_if('Motivo', nc.motive) }}
+                            {{ lv_if('Prerrequisito', nc.prerequisite) }}
+                            {{ lv_if('Evaluación', nc.evaluations) }}
+                            <div class="span-2">{{ lv_if('Clasificación NC', nc.classification) }}</div>
+                        </div>
+                        {% if nc.evaluation_description %}
+                        <div class="txt-block" style="margin-top:6px;">
+                            <span class="txt-block-label">Análisis de evaluación</span>
+                            <div class="txt-block-body">{{ nc.evaluation_description }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                {# S5 — IMPACTO #}
+                <section class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">5. &nbsp;Impacto</span>
+                        <span class="panel-sub">Efecto declarado del hallazgo</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="impact-list">
+                            <div class="impact-row {% if nc.affects_consumer %}active-consumer{% endif %}">
+                                <div class="impact-pill">{% if nc.affects_consumer %}SÍ{% else %}NO{% endif %}</div>
+                                <div class="impact-text">Afecta satisfacción del consumidor final</div>
+                            </div>
+                            <div class="impact-row {% if nc.affects_inocuity %}active-inocuity{% endif %}">
+                                <div class="impact-pill">{% if nc.affects_inocuity %}SÍ{% else %}NO{% endif %}</div>
+                                <div class="impact-text">Afecta inocuidad directa</div>
+                            </div>
+                            <div class="impact-row {% if nc.affects_quality %}active-quality{% endif %}">
+                                <div class="impact-pill">{% if nc.affects_quality %}SÍ{% else %}NO{% endif %}</div>
+                                <div class="impact-text">Afecta calidad directa</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {# S6 — ACCIONES INMEDIATAS #}
+                <section class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">6. &nbsp;Acciones Inmediatas / Immediate Actions</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="action-list">
+                            {% for action in [nc.action_1, nc.action_2, nc.action_3] if action %}
+                            <div class="action-row">
+                                <div class="action-badge">{{ loop.index }}</div>
+                                <div class="action-text">{{ action }}</div>
+                            </div>
+                            {% else %}
+                            <div class="txt-block-body" style="color:var(--text-light);font-style:italic;">Sin acciones registradas.</div>
+                            {% endfor %}
+                        </div>
+
+                        {% if nc.corrective_action %}
+                        <div class="txt-block" style="margin-top:6px;">
+                            <span class="txt-block-label">7. &nbsp;Acción correctiva / Corrective Action</span>
+                            <div class="txt-block-body">{{ nc.corrective_action }}</div>
+                        </div>
+                        {% endif %}
+
+                        <div class="lv-grid cols-2" style="margin-top:6px;">
+                            {{ lv_if('Estado', nc.status) }}
+                            {{ lv_if('Fecha cierre', nc.closure_date.strftime('%d/%m/%Y') if nc.closure_date else None) }}
+                            {% if nc.closed_by %}
+                            <div class="span-2">{{ lv('Cerrada por', nc.closed_by.username) }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+            </div>{# /col der #}
+
+        </div>{# /body-grid #}
+
+        {# Firmas #}
+        <div class="sig-grid">
+            {% for lbl in ['Elaborado por / Prepared by', 'Revisado por / Reviewed by', 'Aprobado por / Approved by'] %}
+            <div class="sig-box">
+                <div class="sig-title">{{ lbl }}</div>
+                <div class="sig-line">Firma / Signature &nbsp;&nbsp; Nombre / Name</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {# Footer #}
+        <footer class="rfoot">
+            <span>RS-SM-GC-REG-0001</span>
+            <span>Portal de Calidad &mdash; Grupo Riba Smith</span>
+            <span>Generado: {{ now.strftime('%d/%m/%Y %H:%M') }}</span>
+        </footer>
+
+    </main>
+</div>
+
+<script>
+if (new URLSearchParams(window.location.search).get('auto') === '1') {
+    window.addEventListener('load', () => setTimeout(() => window.print(), 400));
+}
+</script>
+</body>
+</html>

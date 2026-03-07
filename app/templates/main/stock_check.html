@@ -12,6 +12,7 @@
 }
 
 .stock-search-card,
+.stock-selector-card,
 .stock-result-card {
     border: 1px solid #e5e7eb;
     border-radius: 1.25rem;
@@ -89,6 +90,17 @@
     color: #64748b;
     background: #f8fafc;
 }
+
+.stock-selector-card {
+    padding: 1.15rem 1.3rem;
+    background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 35%),
+        linear-gradient(135deg, #f8fbff 0%, #ffffff 72%);
+}
+
+.stock-hidden {
+    display: none;
+}
 </style>
 {% endblock %}
 
@@ -98,7 +110,7 @@
         <div class="stock-head">
             <h2 class="stock-title">Buscar producto contaminado o comprometido</h2>
             <p class="stock-copy">
-                Busca por codigo interno, codigo de barra o nombre. El sistema muestra marca, suplidor y el inventario disponible por bodega usando `rsi_inv_pordia`.
+                Busca por codigo interno, codigo de barra o nombre. El sistema muestra marca, suplidor y el inventario disponible por bodega con la informacion mas reciente.
             </p>
         </div>
         <div class="stock-body">
@@ -126,16 +138,48 @@
     </div>
     {% endif %}
 
+    {% if product_options|length > 1 %}
+    <section class="stock-selector-card">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+                <h3 class="stock-title">Selecciona el producto correcto</h3>
+                <p class="stock-copy">
+                    Se encontraron <strong>{{ product_options|length }}</strong> coincidencias para <strong>{{ q }}</strong>. Puedes buscar por codigo, barra o nombre y cambiar entre resultados.
+                </p>
+            </div>
+            <div class="w-full lg:max-w-2xl">
+                <select id="stockResultSelect" class="select-field">
+                    {% for option in product_options %}
+                    <option value="{{ option.itemcod }}" {% if selected_item == option.itemcod %}selected{% endif %}>
+                        {{ option.label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
     {% for product in results %}
-    <section class="stock-result-card">
+    <section
+        class="stock-result-card {% if selected_item != product.itemcod %}stock-hidden{% endif %}"
+        data-stock-item="{{ product.itemcod }}">
         <div class="stock-head">
             <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div class="min-w-0">
                     <h3 class="stock-title">{{ product.nombre }}</h3>
-                    <p class="stock-copy">
-                        <span class="font-semibold text-slate-700">Item:</span> {{ product.itemcod }}
-                        {% if product.barcode %}<span class="mx-2 text-slate-300">|</span><span class="font-semibold text-slate-700">Barra:</span> {{ product.barcode }}{% endif %}
-                    </p>
+                    <div class="stock-copy space-y-1">
+                        <p>
+                            <span class="font-semibold text-slate-700">Item:</span>
+                            <span class="break-all">{{ product.itemcod }}</span>
+                        </p>
+                        {% if product.barcode %}
+                        <p>
+                            <span class="font-semibold text-slate-700">Codigo de barra:</span>
+                            <span class="break-all">{{ product.barcode }}</span>
+                        </p>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full lg:w-auto">
                     <div class="stock-metric">
@@ -199,11 +243,35 @@
             </div>
             {% else %}
             <div class="stock-empty">
-                El producto existe en `reporte_maestro`, pero no tiene inventario visible en `rsi_inv_pordia`.
+                El producto existe en el catalogo maestro, pero no tiene inventario visible para las bodegas consultadas en este momento.
             </div>
             {% endif %}
         </div>
     </section>
     {% endfor %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const select = document.getElementById('stockResultSelect');
+    const cards = Array.from(document.querySelectorAll('[data-stock-item]'));
+
+    if (!select || !cards.length) {
+        return;
+    }
+
+    const syncSelectedStockCard = (itemCode) => {
+        cards.forEach((card) => {
+            card.classList.toggle('stock-hidden', card.dataset.stockItem !== itemCode);
+        });
+    };
+
+    syncSelectedStockCard(select.value);
+    select.addEventListener('change', (event) => {
+        syncSelectedStockCard(event.target.value);
+    });
+});
+</script>
 {% endblock %}

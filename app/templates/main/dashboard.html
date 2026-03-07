@@ -5,6 +5,10 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block header_actions %}
+<a href="{{ url_for('nc.list_nc') }}" class="btn-secondary text-sm hidden sm:inline-flex">
+    <i class="fas fa-table-list"></i>
+    <span>Bandeja</span>
+</a>
 <a href="{{ url_for('nc.create_nc') }}" class="btn-primary text-sm">
     <i class="fas fa-plus"></i>
     <span class="hidden sm:inline">Nueva NC</span>
@@ -12,106 +16,543 @@
 {% endblock %}
 
 {% block content %}
-<!-- KPI Cards -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="card flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-clipboard-list text-blue-600 text-xl"></i>
-        </div>
-        <div>
-            <p class="text-2xl font-extrabold text-gray-900">{{ stats.total }}</p>
-            <p class="text-xs text-gray-500 font-medium">Total NCs</p>
-        </div>
-    </div>
-    <div class="card flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-exclamation-circle text-yellow-600 text-xl"></i>
-        </div>
-        <div>
-            <p class="text-2xl font-extrabold text-gray-900">{{ stats.abiertas }}</p>
-            <p class="text-xs text-gray-500 font-medium">Abiertas</p>
-        </div>
-    </div>
-    <div class="card flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-check-circle text-green-600 text-xl"></i>
-        </div>
-        <div>
-            <p class="text-2xl font-extrabold text-gray-900">{{ stats.cerradas }}</p>
-            <p class="text-xs text-gray-500 font-medium">Cerradas</p>
-        </div>
-    </div>
-    <div class="card flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-radiation-alt text-red-600 text-xl"></i>
-        </div>
-        <div>
-            <p class="text-2xl font-extrabold text-gray-900">{{ stats.alta_gravedad }}</p>
-            <p class="text-xs text-gray-500 font-medium">Gravedad Alta</p>
-        </div>
-    </div>
-</div>
+<div class="space-y-6">
 
-<!-- Placeholder charts / recent NCs -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 card">
-        <h2 class="font-bold text-gray-900 mb-4">Últimas No Conformidades</h2>
-        {% if recent_ncs %}
-        <div class="space-y-3">
-            {% for nc in recent_ncs %}
-            <a href="{{ url_for('nc.view_nc', id=nc.id) }}"
-               class="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition group">
-                <div class="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-file-alt text-primary-600 text-sm"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-gray-900 text-sm truncate group-hover:text-primary-700">{{ nc.title }}</p>
-                    <p class="text-xs text-gray-400">{{ nc.nc_number }} · {{ nc.date_detected.strftime('%d/%m/%Y') if nc.date_detected }}</p>
-                </div>
-                <span class="badge {% if nc.gravity == 'Alta' or nc.gravity == 'Muy Alta' %}badge-alta{% elif nc.gravity == 'Media' %}badge-media{% else %}badge-baja{% endif %} flex-shrink-0 hidden sm:inline-flex">
-                    {{ nc.gravity or '—' }}
-                </span>
-                <span class="badge {% if nc.status == 'Abierta' %}badge-abierta{% else %}badge-cerrada{% endif %} flex-shrink-0">
-                    {{ nc.status }}
-                </span>
-            </a>
-            {% endfor %}
-        </div>
-        <a href="{{ url_for('nc.list_nc') }}"
-           class="mt-4 flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium transition">
-            Ver todas <i class="fas fa-arrow-right text-xs"></i>
-        </a>
-        {% else %}
-        <div class="text-center py-12 text-gray-400">
-            <i class="fas fa-clipboard text-3xl mb-3 block"></i>
-            <p class="text-sm">No hay No Conformidades registradas.</p>
-            <a href="{{ url_for('nc.create_nc') }}" class="btn-primary mt-4 inline-flex text-sm">
-                <i class="fas fa-plus"></i> Registrar primera NC
-            </a>
-        </div>
-        {% endif %}
-    </div>
+    <section class="grid grid-cols-1 xl:grid-cols-[1.15fr,0.85fr] gap-6">
+        <div class="relative overflow-hidden rounded-3xl bg-slate-900 text-white p-6 sm:p-8 shadow-xl">
+            <div class="absolute -top-20 -right-16 w-56 h-56 rounded-full bg-primary-500/30 blur-3xl"></div>
+            <div class="absolute -bottom-24 left-0 w-64 h-64 rounded-full bg-cyan-400/20 blur-3xl"></div>
 
-    <div class="card">
-        <h2 class="font-bold text-gray-900 mb-4">Por Sección (Top 5)</h2>
-        {% if top_sections %}
-        <div class="space-y-3">
-            {% for sec, count in top_sections %}
-            <div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-700 font-medium truncate">{{ sec }}</span>
-                    <span class="text-gray-500 font-bold ml-2">{{ count }}</span>
+            <div class="relative space-y-6">
+                <div class="space-y-3">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/75">
+                        <i class="fas fa-chart-line text-[11px]"></i>
+                        Resumen ejecutivo
+                    </span>
+                    <div class="space-y-2">
+                        <h2 class="text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight">
+                            Control central de no conformidades
+                        </h2>
+                        <p class="max-w-2xl text-sm sm:text-base leading-relaxed text-white/80">
+                            Vista consolidada del volumen, nivel de riesgo, avance de cierre e impacto reportado en el sistema.
+                        </p>
+                    </div>
                 </div>
-                <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-primary-500 to-primary-700 rounded-full"
-                         style="width: {{ (count / top_sections[0][1] * 100)|int }}%"></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
+                        <p class="text-xs uppercase tracking-[0.16em] text-white/60">Mes actual</p>
+                        <p class="mt-2 text-3xl font-extrabold">{{ stats.this_month_total }}</p>
+                        <p class="mt-2 text-sm text-white/70">{{ headline.current_label }}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
+                        <p class="text-xs uppercase tracking-[0.16em] text-white/60">Tasa de cierre</p>
+                        <p class="mt-2 text-3xl font-extrabold">{{ stats.closure_rate }}%</p>
+                        <p class="mt-2 text-sm text-white/70">{{ stats.cerradas }} de {{ stats.total }} casos</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
+                        <p class="text-xs uppercase tracking-[0.16em] text-white/60">Pendientes > 30 dias</p>
+                        <p class="mt-2 text-3xl font-extrabold">{{ stats.stale_open }}</p>
+                        <p class="mt-2 text-sm text-white/70">Casos abiertos con mayor atraso</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-white/85">
+                        <i class="fas fa-sack-dollar text-emerald-300"></i>
+                        <span>Impacto estimado: ${{ stats.impact_usd_display }}</span>
+                    </div>
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-white/85">
+                        <i class="fas fa-box-open text-sky-300"></i>
+                        <span>Unidades reportadas: {{ stats.impact_units_display }}</span>
+                    </div>
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-white/85">
+                        <i class="fas fa-triangle-exclamation text-amber-300"></i>
+                        <span>Alta gravedad: {{ stats.alta_gravedad }}</span>
+                    </div>
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-white/85">
+                        <i class="fas fa-shield-heart text-rose-300"></i>
+                        <span>Alertas de inocuidad: {{ stats.inocuidad_flags }}</span>
+                    </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
-        {% else %}
-        <p class="text-sm text-gray-400 text-center py-8">Sin datos</p>
-        {% endif %}
-    </div>
+
+        <div class="card shadow-xl">
+            <div class="flex items-center justify-between gap-3 mb-6">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Estado general</p>
+                    <h2 class="mt-1 text-xl font-bold text-gray-900">Distribucion actual</h2>
+                </div>
+                <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                    {{ stats.total }} registros
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-[auto,1fr] gap-6 items-center">
+                <div class="mx-auto">
+                    <div class="relative w-40 h-40 rounded-full shadow-inner" style="background: {{ status_chart_gradient }};">
+                        <div class="absolute rounded-full bg-white shadow-sm" style="inset: 1.65rem;">
+                            <div class="h-full flex flex-col items-center justify-center text-center">
+                                <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">Total</span>
+                                <span class="mt-1 text-3xl font-extrabold text-gray-900">{{ stats.total }}</span>
+                                <span class="mt-1 text-xs text-gray-500">No conformidades</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    {% if status_breakdown %}
+                        {% for item in status_breakdown %}
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: {{ item.color }};"></span>
+                                    <div class="min-w-0">
+                                        <p class="font-semibold text-gray-900 truncate">{{ item.label }}</p>
+                                        <p class="text-xs text-gray-500">{{ item.count }} casos</p>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-bold text-gray-700">{{ item.pct }}%</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-400">
+                        No hay datos para mostrar.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="rounded-2xl bg-blue-50 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-blue-600">Variacion mensual</p>
+                    <p class="mt-2 text-2xl font-extrabold text-gray-900">
+                        {% if headline.delta_direction == 'up' %}+{% elif headline.delta_direction == 'down' %}-{% endif %}{{ stats.month_delta | abs }}
+                    </p>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {% if stats.month_delta_pct is not none %}
+                            {{ stats.month_delta_pct | abs }}% vs mes previo
+                        {% else %}
+                            Sin base previa
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="rounded-2xl bg-emerald-50 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600">Promedio de cierre</p>
+                    <p class="mt-2 text-2xl font-extrabold text-gray-900">
+                        {{ stats.avg_close_days_display if stats.avg_close_days_display is not none else 'N/D' }}
+                    </p>
+                    <p class="mt-1 text-sm text-gray-500">Dias entre deteccion y cierre</p>
+                </div>
+                <div class="rounded-2xl bg-amber-50 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-amber-600">Impacto al cliente</p>
+                    <p class="mt-2 text-2xl font-extrabold text-gray-900">{{ stats.consumer_flags }}</p>
+                    <p class="mt-1 text-sm text-gray-500">Casos con afectacion declarada</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div class="card-hover">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">Total</p>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ stats.total }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-hover">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">Abiertas</p>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ stats.abiertas }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-hover">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center">
+                    <i class="fas fa-circle-check"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">Cerradas</p>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ stats.cerradas }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-hover">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
+                    <i class="fas fa-radiation"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">Alta gravedad</p>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ stats.alta_gravedad }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-hover">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                    <i class="fas fa-shield-virus"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">Inocuidad</p>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ stats.inocuidad_flags }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-hover">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">Calidad</p>
+                    <p class="text-2xl font-extrabold text-gray-900">{{ stats.quality_flags }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-[1.2fr,0.8fr] gap-6">
+        <div class="card">
+            <div class="flex items-center justify-between gap-3 mb-6">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Tendencia</p>
+                    <h2 class="mt-1 text-xl font-bold text-gray-900">Ultimos 6 meses</h2>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-gray-500">
+                    <span class="inline-flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-primary-600"></span>
+                        Total NC
+                    </span>
+                    <span class="inline-flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                        Alta gravedad
+                    </span>
+                </div>
+            </div>
+
+            {% if has_trend_data %}
+            <div class="rounded-3xl bg-slate-50 p-4 sm:p-6">
+                <div class="flex items-end gap-3 sm:gap-4 h-72">
+                    {% for month in monthly_trend %}
+                    <div class="flex-1 min-w-0 h-full flex flex-col justify-end items-center gap-3">
+                        <div class="text-center">
+                            <p class="text-lg font-bold text-gray-900">{{ month.count }}</p>
+                            <p class="text-[11px] uppercase tracking-[0.14em] text-gray-400">
+                                {% if month.high_risk %}{{ month.high_risk }} alta{% else %}-{% endif %}
+                            </p>
+                        </div>
+
+                        <div class="relative w-full max-w-[56px] h-44 rounded-[1.4rem] bg-white border border-slate-200 overflow-hidden shadow-sm">
+                            {% if month.bar_height %}
+                            <div class="absolute inset-x-0 bottom-0 rounded-[1.4rem] bg-gradient-to-t from-primary-700 to-primary-400" style="height: {{ month.bar_height }}%;"></div>
+                            {% endif %}
+                            {% if month.high_bar_height %}
+                            <div class="absolute inset-x-2 bottom-2 rounded-full bg-red-400/90" style="height: {{ month.high_bar_height }}%;"></div>
+                            {% endif %}
+                        </div>
+
+                        <div class="text-center">
+                            <p class="text-sm font-semibold {% if month.is_current %}text-primary-700{% else %}text-gray-700{% endif %}">
+                                {{ month.short_label }}
+                            </p>
+                            <p class="text-[11px] text-gray-400">{{ month.label.split(' ')[1] }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-20 text-center text-sm text-gray-400">
+                No hay registros suficientes para construir la tendencia.
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between gap-3 mb-6">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Riesgo</p>
+                    <h2 class="mt-1 text-xl font-bold text-gray-900">Distribucion por gravedad</h2>
+                </div>
+                <span class="text-xs font-semibold text-gray-400">Prioridad actual</span>
+            </div>
+
+            {% if gravity_breakdown %}
+            <div class="flex flex-col items-center gap-6">
+                <div class="relative w-44 h-44 rounded-full shadow-inner" style="background: {{ gravity_chart_gradient }};">
+                    <div class="absolute rounded-full bg-white shadow-sm" style="inset: 1.9rem;">
+                        <div class="h-full flex flex-col items-center justify-center text-center">
+                            <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">Alta gravedad</span>
+                            <span class="mt-1 text-3xl font-extrabold text-gray-900">{{ stats.alta_gravedad }}</span>
+                            <span class="mt-1 text-xs text-gray-500">Casos priorizados</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full space-y-3">
+                    {% for item in gravity_breakdown %}
+                    <div>
+                        <div class="flex items-center justify-between gap-3 mb-1.5">
+                            <span class="text-sm font-medium text-gray-700">{{ item.label }}</span>
+                            <span class="text-sm font-bold text-gray-900">{{ item.count }}</span>
+                        </div>
+                        <div class="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+                            <div class="h-full rounded-full" style="width: {{ item.pct if item.pct >= 6 else 6 }}%; background-color: {{ item.color }};"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-20 text-center text-sm text-gray-400">
+                No hay datos de gravedad para mostrar.
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 card">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Actividad</p>
+                    <h2 class="mt-1 text-xl font-bold text-gray-900">Ultimas no conformidades</h2>
+                </div>
+                <a href="{{ url_for('nc.list_nc') }}" class="text-sm font-semibold text-primary-600 hover:text-primary-700">
+                    Ver todas
+                </a>
+            </div>
+
+            {% if recent_ncs %}
+            <div class="space-y-3">
+                {% for nc in recent_ncs %}
+                <a href="{{ url_for('nc.view_nc', id=nc.id) }}" class="flex items-start gap-4 rounded-2xl border border-gray-100 p-4 hover:bg-gray-50 transition">
+                    <div class="w-11 h-11 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-file-lines"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <span class="font-mono text-xs font-semibold text-primary-700">{{ nc.nc_number }}</span>
+                            <span class="text-xs text-gray-400">{{ nc.date_detected.strftime('%d/%m/%Y') if nc.date_detected else 'Sin fecha' }}</span>
+                        </div>
+                        <p class="font-semibold text-gray-900 leading-tight">{{ nc.title }}</p>
+                        <p class="mt-1 text-sm text-gray-500">
+                            {{ nc.section or 'Sin seccion' }}
+                            {% if nc.provider_tipo %} · {{ nc.provider_tipo }}{% endif %}
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                        <span class="badge {% if nc.gravity in ('Alta', 'Muy Alta') %}badge-alta{% elif nc.gravity == 'Media' %}badge-media{% else %}badge-baja{% endif %}">
+                            {{ nc.gravity or 'Sin gravedad' }}
+                        </span>
+                        <span class="badge {% if nc.status in ('Cerrada', 'Cerrado') %}badge-cerrada{% else %}badge-abierta{% endif %}">
+                            {{ nc.status or 'Abierta' }}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-16 text-center">
+                <i class="fas fa-clipboard text-3xl text-gray-300 mb-3"></i>
+                <p class="text-sm text-gray-400">No hay no conformidades registradas todavia.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Atencion</p>
+                    <h2 class="mt-1 text-xl font-bold text-gray-900">Casos abiertos mas antiguos</h2>
+                </div>
+                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                    {{ oldest_open|length }}
+                </span>
+            </div>
+
+            {% if oldest_open %}
+            <div class="space-y-3">
+                {% for nc in oldest_open %}
+                <a href="{{ url_for('nc.view_nc', id=nc.id) }}" class="block rounded-2xl border border-gray-100 p-4 hover:bg-gray-50 transition">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="font-mono text-xs font-semibold text-primary-700">{{ nc.nc_number }}</p>
+                            <p class="mt-1 font-semibold text-gray-900 leading-tight">{{ nc.title }}</p>
+                            <p class="mt-1 text-sm text-gray-500">{{ nc.section or 'Sin seccion' }}</p>
+                        </div>
+                        <span class="badge badge-abierta">Abierta</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
+                        <span>{{ nc.date_detected.strftime('%d/%m/%Y') if nc.date_detected else 'Sin fecha' }}</span>
+                        <span>
+                            {{ (nc.open_age_days ~ ' dias') if nc.open_age_days is not none else 'Edad no disponible' }}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-16 text-center">
+                <i class="fas fa-check-double text-3xl text-gray-300 mb-3"></i>
+                <p class="text-sm text-gray-400">No hay casos abiertos pendientes.</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div class="card">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Ranking</p>
+                    <h2 class="mt-1 text-lg font-bold text-gray-900">Secciones</h2>
+                </div>
+                <i class="fas fa-layer-group text-primary-500"></i>
+            </div>
+
+            {% if top_sections %}
+            <div class="space-y-4">
+                {% for item in top_sections %}
+                <div>
+                    <div class="flex items-center justify-between gap-3 mb-1.5">
+                        <span class="text-sm font-medium text-gray-700 truncate">{{ item.label }}</span>
+                        <span class="text-sm font-bold text-gray-900">{{ item.count }}</span>
+                    </div>
+                    <div class="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+                        <div class="h-full rounded-full" style="width: {{ item.pct if item.pct >= 8 else 8 }}%; background-color: {{ item.color }};"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="py-12 text-center text-sm text-gray-400">Sin datos de seccion.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Origen</p>
+                    <h2 class="mt-1 text-lg font-bold text-gray-900">Tipos de proveedor</h2>
+                </div>
+                <i class="fas fa-truck-ramp-box text-sky-500"></i>
+            </div>
+
+            {% if provider_breakdown %}
+            <div class="space-y-4">
+                {% for item in provider_breakdown %}
+                <div>
+                    <div class="flex items-center justify-between gap-3 mb-1.5">
+                        <span class="text-sm font-medium text-gray-700 truncate">{{ item.label }}</span>
+                        <span class="text-sm font-bold text-gray-900">{{ item.count }}</span>
+                    </div>
+                    <div class="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+                        <div class="h-full rounded-full" style="width: {{ item.pct if item.pct >= 8 else 8 }}%; background-color: {{ item.color }};"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="py-12 text-center text-sm text-gray-400">Sin datos de proveedor.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Motivo</p>
+                    <h2 class="mt-1 text-lg font-bold text-gray-900">Clasificacion por motivo</h2>
+                </div>
+                <i class="fas fa-tags text-amber-500"></i>
+            </div>
+
+            {% if motive_breakdown %}
+            <div class="space-y-3">
+                {% for item in motive_breakdown %}
+                <div class="rounded-2xl bg-gray-50 px-4 py-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: {{ item.color }};"></span>
+                            <span class="text-sm font-medium text-gray-700 truncate">{{ item.label }}</span>
+                        </div>
+                        <span class="text-sm font-bold text-gray-900">{{ item.count }}</span>
+                    </div>
+                    <div class="mt-2 h-2 rounded-full bg-white overflow-hidden">
+                        <div class="h-full rounded-full" style="width: {{ item.pct if item.pct >= 8 else 8 }}%; background-color: {{ item.color }};"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="py-12 text-center text-sm text-gray-400">Sin datos de motivo.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Cierres</p>
+                    <h2 class="mt-1 text-lg font-bold text-gray-900">Cerradas recientemente</h2>
+                </div>
+                <i class="fas fa-calendar-check text-green-500"></i>
+            </div>
+
+            {% if recently_closed %}
+            <div class="space-y-3">
+                {% for nc in recently_closed %}
+                <a href="{{ url_for('nc.view_nc', id=nc.id) }}" class="block rounded-2xl border border-gray-100 p-4 hover:bg-gray-50 transition">
+                    <p class="font-mono text-xs font-semibold text-primary-700">{{ nc.nc_number }}</p>
+                    <p class="mt-1 font-semibold text-gray-900 leading-tight">{{ nc.title }}</p>
+                    <div class="mt-2 flex items-center justify-between gap-3 text-xs text-gray-400">
+                        <span>{{ nc.closure_date.strftime('%d/%m/%Y') if nc.closure_date else 'Sin fecha' }}</span>
+                        <span class="badge badge-cerrada">Cerrada</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="py-12 text-center text-sm text-gray-400">Sin cierres recientes.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if not stats.total %}
+    <section class="card border-dashed">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Estado inicial</p>
+                <h2 class="mt-1 text-xl font-bold text-gray-900">El dashboard esta listo para recibir datos</h2>
+                <p class="mt-2 text-sm text-gray-500">
+                    Cuando se registren no conformidades, aqui se mostraran tendencias, riesgos, cierres y rankings.
+                </p>
+            </div>
+            <a href="{{ url_for('nc.create_nc') }}" class="btn-primary lg:w-auto">
+                <i class="fas fa-plus"></i>
+                <span>Registrar primera NC</span>
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
 </div>
 {% endblock %}

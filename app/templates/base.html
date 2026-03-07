@@ -63,6 +63,12 @@
                 <span>Checar Existencia</span>
             </a>
 
+            <a href="{{ url_for('main.analytics') }}"
+               class="nav-item {% if request.endpoint == 'main.analytics' %}active{% endif %}">
+                <i class="fas fa-chart-pie w-5 text-center"></i>
+                <span>Analytics</span>
+            </a>
+
             <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 mt-5 px-4">No Conformidades</div>
 
             <a href="{{ url_for('nc.list_nc') }}"
