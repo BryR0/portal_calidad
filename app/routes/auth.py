@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from sqlalchemy import or_
 from app.models.user import User
 from app.routes import auth_bp
 
@@ -14,18 +15,20 @@ class LoginForm(FlaskForm):
 
 
 class RequestResetForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email(message="Dirección de correo no válida")])
+    email = StringField('Email', validators=[DataRequired(), Email(
+        message="Dirección de correo no válida")])
     submit = SubmitField('Solicitar recuperación')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data.strip().lower()).first()
         if user is None:
-            raise ValidationError('No hay una cuenta con ese correo electrónico. Registre una primero.')
+            raise ValidationError(
+                'No hay una cuenta con ese correo electrónico. Registre una primero.')
 
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Nueva Contraseña', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirmar Nueva Contraseña', 
+    confirm_password = PasswordField('Confirmar Nueva Contraseña',
                                      validators=[DataRequired(), EqualTo('password', message="Las contraseñas deben coincidir")])
     submit = SubmitField('Restablecer Contraseña')
 
@@ -37,7 +40,9 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data.strip()).first()
+        login_key = form.username.data.strip()
+        user = User.query.filter(or_(User.username == login_key,
+                                     User.email == login_key.lower())).first()
         if user and user.is_active and user.verify_password(form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
@@ -67,7 +72,8 @@ def send_reset_email(user):
 
 Si no realizaste esta petición, puedes ignorar este correo sin que se modifique tu cuenta.
 '''
-    msg.html = render_template('auth/email/reset_password.html', user=user, token=token)
+    msg.html = render_template(
+        'auth/email/reset_password.html', user=user, token=token)
     mail.send(msg)
 
 
@@ -77,12 +83,18 @@ def reset_request():
         return redirect(url_for('main.dashboard'))
     form = RequestResetForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.strip().lower()).first()
+        user = User.query.filter_by(
+            email=form.email.data.strip().lower()).first()
         if user:
             send_reset_email(user)
         flash('Se ha enviado un correo con instrucciones para restablecer tu contraseña.', 'info')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_request.html', title='Restablecer Contraseña', form=form)
+
+
+@auth_bp.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    return redirect(url_for('auth.reset_request'))
 
 
 @auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
