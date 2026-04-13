@@ -1,31 +1,33 @@
 from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 from app.routes import admin_bp
-from app.models.user import User
+from app.models.user import User, Role, Permission
+from app.utils.decorators import permission_required
 import secrets
 import string
 
 
 def require_admin():
-    if not current_user.is_authenticated or not current_user.is_admin():
+    if not current_user.is_authenticated or not current_user.has_permission('user_manage'):
         abort(403)
 
 
 @admin_bp.route('/users')
 @login_required
+@permission_required('user_manage')
 def users():
-    require_admin()
     all_users = User.query.order_by(User.username).all()
-    return render_template('admin/users.html', users=all_users)
+    all_roles = Role.query.all()
+    return render_template('admin/users.html', users=all_users, all_roles=all_roles)
 
 
 @admin_bp.route('/users/create', methods=['POST'])
 @login_required
+@permission_required('user_manage')
 def create_user():
-    require_admin()
     username = request.form.get('username', '').strip()
     email    = request.form.get('email', '').strip() or None
-    role     = request.form.get('role', 'user')
+    role_names = request.form.getlist('roles')
     password = request.form.get('password', '')
 
     if not username or not password:
@@ -36,11 +38,20 @@ def create_user():
         flash(f'El usuario "{username}" ya existe', 'error')
         return redirect(url_for('admin.users'))
 
-    if role not in ('admin', 'calidad', 'user'):
-        role = 'user'
+    # Compatible with old 'role' string for now (optional)
+    legacy_role = 'user'
+    if 'admin' in role_names: legacy_role = 'admin'
+    elif 'calidad' in role_names: legacy_role = 'calidad'
 
-    user = User(username=username, email=email, role=role)
+    user = User(username=username, email=email, role=legacy_role)
     user.set_password(password)
+    
+    # Assign new roles
+    for rname in role_names:
+        r = Role.query.filter_by(name=rname).first()
+        if r:
+            user.roles.append(r)
+
     from app import db
     db.session.add(user)
     db.session.commit()
@@ -50,8 +61,8 @@ def create_user():
 
 @admin_bp.route('/users/<int:user_id>/toggle', methods=['POST'])
 @login_required
+@permission_required('user_manage')
 def toggle_user(user_id):
-    require_admin()
     user = User.query.get_or_404(user_id)
     if user.id == current_user.id:
         flash('No puedes desactivarte a ti mismo', 'error')
@@ -66,8 +77,8 @@ def toggle_user(user_id):
 
 @admin_bp.route('/users/<int:user_id>/reset-password', methods=['POST'])
 @login_required
+@permission_required('user_manage')
 def reset_password(user_id):
-    require_admin()
     user = User.query.get_or_404(user_id)
     # Generate a random 12-char password
     alphabet = string.ascii_letters + string.digits

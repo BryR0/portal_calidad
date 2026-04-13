@@ -344,7 +344,7 @@ def _build_query(args):
 
 
 def _can_edit_nc(nc):
-    return nc.status == 'Abierta' or current_user.is_calidad()
+    return nc.status == 'Abierta' or current_user.has_permission('nc_edit_all')
 
 
 def _apply_form_to_nc(nc, form, *, is_new=False):
@@ -530,7 +530,7 @@ def view_nc(id):
 @nc_bp.route('/<int:id>/cerrar', methods=['POST'])
 @login_required
 def close_nc(id):
-    if not current_user.is_calidad():
+    if not current_user.has_permission('nc_close'):
         flash('No tienes permisos para cerrar NCs.', 'error')
         return redirect(url_for('nc.view_nc', id=id))
     nc = NonConformity.query.get_or_404(id)
