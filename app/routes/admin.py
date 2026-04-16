@@ -88,3 +88,58 @@ def reset_password(user_id):
     db.session.commit()
     flash(f'Nueva contraseña para "{user.username}": {new_pwd}  (cópiala ahora)', 'warning')
     return redirect(url_for('admin.users'))
+
+
+@admin_bp.route('/users/<int:user_id>/edit', methods=['POST'])
+@login_required
+@permission_required('user_manage')
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+    username = request.form.get('username', '').strip()
+    email = request.form.get('email', '').strip() or None
+    role_names = request.form.getlist('roles')
+
+    if not username:
+        flash('El nombre de usuario es requerido', 'error')
+        return redirect(url_for('admin.users'))
+
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user and existing_user.id != user.id:
+        flash(f'El usuario "{username}" ya existe', 'error')
+        return redirect(url_for('admin.users'))
+
+    user.username = username
+    user.email = email
+    
+    # Update roles
+    user.roles = []
+    for rname in role_names:
+        r = Role.query.filter_by(name=rname).first()
+        if r:
+            user.roles.append(r)
+            
+    # Compatible with legacy 'role' column
+    if 'admin' in role_names: user.role = 'admin'
+    elif 'calidad' in role_names: user.role = 'calidad'
+    else: user.role = 'user'
+
+    from app import db
+    db.session.commit()
+    flash(f'Usuario "{username}" actualizado correctamente', 'success')
+    return redirect(url_for('admin.users'))
+
+
+@admin_bp.route('/users/<int:user_id>/delete', methods=['POST'])
+@login_required
+@permission_required('user_manage')
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('No puedes eliminar tu propia cuenta', 'error')
+        return redirect(url_for('admin.users'))
+    
+    from app import db
+    db.session.delete(user)
+    db.session.commit()
+    flash(f'Usuario "{user.username}" eliminado permanentemente', 'success')
+    return redirect(url_for('admin.users'))
