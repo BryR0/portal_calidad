@@ -3,14 +3,14 @@ block breadcrumb %}{{ nc.nc_number }}{% endblock %} {% block page_title %}{{
 nc.nc_number }}{% endblock %} {% block extra_css %}
 <style>
 	.nc-view-shell {
-		max-width: 1480px;
+		max-width: 1300px;
 		margin: 0 auto;
 	}
 
 	.hero-card {
 		padding: 1.35rem;
 		border: 1px solid #bfdbfe;
-		border-radius: 1.4rem;
+		border-radius: 1.3rem;
 		background:
 			radial-gradient(
 				circle at top right,
@@ -87,7 +87,7 @@ nc.nc_number }}{% endblock %} {% block extra_css %}
 
 	.view-panel {
 		border: 1px solid #e2e8f0;
-		border-radius: 1.25rem;
+		border-radius: 1.3rem;
 		background: #ffffff;
 		overflow: hidden;
 		box-shadow: 0 18px 38px -34px rgba(15, 23, 42, 0.48);
@@ -239,16 +239,19 @@ nc.nc_number }}{% endblock %} {% block extra_css %}
 	.impact-card.consumer.active {
 		border-color: #fcd34d;
 		background: #fffbeb;
+        box-shadow: 0 0 0 2px #fef3c7;
 	}
 
 	.impact-card.inocuity.active {
 		border-color: #fca5a5;
 		background: #fff1f2;
+        box-shadow: 0 0 0 2px #ffe4e6;
 	}
 
 	.impact-card.quality.active {
 		border-color: #fdba74;
 		background: #fff7ed;
+        box-shadow: 0 0 0 2px #ffedd5;
 	}
 
 	.impact-state {

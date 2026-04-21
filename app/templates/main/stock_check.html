@@ -7,7 +7,7 @@
 {% block extra_css %}
 <style>
 .stock-shell {
-    max-width: 1480px;
+    max-width: 1300px;
     margin: 0 auto;
 }
 
@@ -15,13 +15,14 @@
 .stock-selector-card,
 .stock-result-card {
     border: 1px solid #e5e7eb;
-    border-radius: 1.25rem;
+    border-radius: 1.3rem;
     background: #ffffff;
     box-shadow: 0 18px 35px -32px rgba(15, 23, 42, 0.45);
+    overflow: hidden;
 }
 
 .stock-head {
-    padding: 1.2rem 1.3rem 1rem;
+    padding: 1.35rem 1.5rem 1.2rem;
     border-bottom: 1px solid #dbeafe;
     background:
         radial-gradient(circle at top right, rgba(14, 165, 233, 0.14), transparent 34%),
@@ -31,7 +32,7 @@
 .stock-title {
     color: #0f172a;
     font-size: 1.25rem;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -0.02em;
 }
 
@@ -43,20 +44,20 @@
 }
 
 .stock-body {
-    padding: 1.25rem 1.3rem 1.3rem;
+    padding: 1.35rem 1.5rem 1.5rem;
 }
 
 .stock-metric {
     border: 1px solid #e5e7eb;
     border-radius: 1rem;
-    padding: 0.9rem 1rem;
+    padding: 1rem;
     background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 }
 
 .stock-metric-label {
     color: #64748b;
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -70,29 +71,32 @@
 }
 
 .stock-table th {
-    background: #f8fafc;
-    color: #64748b;
-    font-size: 0.74rem;
-    font-weight: 700;
+    background: rgba(249, 250, 251, 0.8);
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
+    padding: 1rem 1.2rem;
 }
 
 .stock-table td {
-    color: #0f172a;
-    font-size: 0.9rem;
+    color: #1f2937;
+    font-size: 0.92rem;
+    padding: 1rem 1.2rem;
 }
 
 .stock-empty {
     border: 1px dashed #cbd5e1;
-    border-radius: 1rem;
-    padding: 1rem;
+    border-radius: 1.3rem;
+    padding: 1.5rem;
     color: #64748b;
     background: #f8fafc;
+    text-align: center;
 }
 
 .stock-selector-card {
-    padding: 1.15rem 1.3rem;
+    padding: 1.35rem 1.5rem;
     background:
         radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 35%),
         linear-gradient(135deg, #f8fbff 0%, #ffffff 72%);
@@ -101,30 +105,63 @@
 .stock-hidden {
     display: none;
 }
+
+.input-field {
+    width: 100%;
+    border-radius: 0.8rem;
+    border: 1px solid #cbd5e1;
+    padding: 0.65rem 1rem;
+    font-size: 0.92rem;
+    color: #1e293b;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+.input-field:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    outline: none;
+}
+
+.select-field {
+    width: 100%;
+    border-radius: 0.8rem;
+    border: 1px solid #cbd5e1;
+    padding: 0.65rem 1rem;
+    font-size: 0.92rem;
+    color: #1e293b;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+.select-field:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    outline: none;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="stock-shell space-y-5">
+<div class="stock-shell space-y-6">
     <section class="stock-search-card">
         <div class="stock-head">
-            <h2 class="stock-title">Buscar producto contaminado o comprometido</h2>
+            <h2 class="stock-title text-indigo-900"><i class="fas fa-boxes text-indigo-500 mr-2"></i>Buscar producto contaminado o comprometido</h2>
             <p class="stock-copy">
-                Busca por codigo interno, codigo de barra o nombre. El sistema muestra marca, suplidor y el inventario disponible por bodega con la informacion mas reciente.
+                Busca por código interno, código de barra o nombre. El sistema muestra marca, suplidor y el inventario disponible por bodega con la información más reciente.
             </p>
         </div>
         <div class="stock-body">
-            <form method="GET" action="{{ url_for('main.stock_check') }}" class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3">
-                <div class="relative">
-                    <i class="fas fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sky-600 text-sm"></i>
+            <form method="GET" action="{{ url_for('main.stock_check') }}" class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
+                <div class="relative flex items-center">
+                    <i class="fas fa-magnifying-glass absolute left-3.5 text-gray-400 text-sm"></i>
                     <input
                         type="text"
                         name="q"
                         value="{{ q }}"
-                        class="input-field pl-10"
+                        class="input-field h-[46px] w-full"
+                        style="padding-left: 2.5rem;"
                         placeholder="Ej. 110203, 7456789012345 o nombre del producto">
                 </div>
-                <button type="submit" class="btn-primary px-5">
+                <button type="submit" class="btn-primary px-8 h-[46px]">
                     <i class="fas fa-search"></i>
                     <span>Buscar</span>
                 </button>
@@ -133,22 +170,23 @@
     </section>
 
     {% if q and not results %}
-    <div class="stock-empty">
-        No se encontraron productos para <strong>{{ q }}</strong>.
+    <div class="stock-empty shadow-inner">
+        <i class="fas fa-search-minus text-3xl text-gray-300 mb-3 block"></i>
+        No se encontraron productos para <strong class="text-gray-700">"{{ q }}"</strong>.
     </div>
     {% endif %}
 
     {% if product_options|length > 1 %}
     <section class="stock-selector-card">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <h3 class="stock-title">Selecciona el producto correcto</h3>
+                <h3 class="stock-title"><i class="fas fa-list-ul text-sky-500 mr-2"></i>Selecciona el producto correcto</h3>
                 <p class="stock-copy">
-                    Se encontraron <strong>{{ product_options|length }}</strong> coincidencias para <strong>{{ q }}</strong>. Puedes buscar por codigo, barra o nombre y cambiar entre resultados.
+                    Se encontraron <strong class="text-indigo-600">{{ product_options|length }}</strong> coincidencias para <strong class="text-gray-700">"{{ q }}"</strong>. Puedes cambiar entre resultados.
                 </p>
             </div>
-            <div class="w-full lg:max-w-2xl">
-                <select id="stockResultSelect" class="select-field">
+            <div class="w-full lg:max-w-xl">
+                <select id="stockResultSelect" class="select-field h-[46px] font-medium text-indigo-900 border-indigo-200 bg-indigo-50/30">
                     {% for option in product_options %}
                     <option value="{{ option.itemcod }}" {% if selected_item == option.itemcod %}selected{% endif %}>
                         {{ option.label }}
@@ -165,85 +203,86 @@
         class="stock-result-card {% if selected_item != product.itemcod %}stock-hidden{% endif %}"
         data-stock-item="{{ product.itemcod }}">
         <div class="stock-head">
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                 <div class="min-w-0">
-                    <h3 class="stock-title">{{ product.nombre }}</h3>
-                    <div class="stock-copy space-y-1">
-                        <p>
-                            <span class="font-semibold text-slate-700">Item:</span>
-                            <span class="break-all">{{ product.itemcod }}</span>
-                        </p>
+                    <h3 class="stock-title text-xl mb-3 text-indigo-950">{{ product.nombre }}</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-sm font-semibold text-slate-700">
+                            <i class="fas fa-hashtag text-slate-400"></i> {{ product.itemcod }}
+                        </span>
                         {% if product.barcode %}
-                        <p>
-                            <span class="font-semibold text-slate-700">Codigo de barra:</span>
-                            <span class="break-all">{{ product.barcode }}</span>
-                        </p>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-sm font-semibold text-slate-700">
+                            <i class="fas fa-barcode text-slate-400"></i> {{ product.barcode }}
+                        </span>
                         {% endif %}
                     </div>
                 </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full lg:w-auto">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full xl:w-auto">
                     <div class="stock-metric">
                         <div class="stock-metric-label">Marca</div>
-                        <div class="stock-metric-value text-base">{{ product.marca or 'Sin marca' }}</div>
+                        <div class="stock-metric-value text-base mt-1">{{ product.marca or 'Sin marca' }}</div>
                     </div>
                     <div class="stock-metric">
                         <div class="stock-metric-label">Suplidor</div>
-                        <div class="stock-metric-value text-base">{{ product.suplidor or 'Sin suplidor' }}</div>
+                        <div class="stock-metric-value text-base mt-1">{{ product.suplidor or 'Sin suplidor' }}</div>
                     </div>
                     <div class="stock-metric">
                         <div class="stock-metric-label">Precio</div>
-                        <div class="stock-metric-value">${{ '%.2f'|format(product.precio) }}</div>
+                        <div class="stock-metric-value text-green-700">${{ '%.2f'|format(product.precio) }}</div>
                     </div>
                     <div class="stock-metric">
-                        <div class="stock-metric-label">Total Unidades</div>
-                        <div class="stock-metric-value">{{ '%.2f'|format(product.total_unidades) }}</div>
+                        <div class="stock-metric-label">Unidades</div>
+                        <div class="stock-metric-value text-indigo-700">{{ '%.2f'|format(product.total_unidades) }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="stock-body">
+        <div class="stock-body !p-0">
             {% if product.inventories %}
             <div class="overflow-x-auto">
-                <table class="stock-table w-full border-separate border-spacing-0">
+                <table class="stock-table w-full">
                     <thead>
-                        <tr>
-                            <th class="text-left px-4 py-3 border-b border-slate-200">Bodega</th>
-                            <th class="text-left px-4 py-3 border-b border-slate-200">Sucursal</th>
-                            <th class="text-right px-4 py-3 border-b border-slate-200">Cantidad</th>
-                            <th class="text-right px-4 py-3 border-b border-slate-200">Precio</th>
-                            <th class="text-right px-4 py-3 border-b border-slate-200">Valor</th>
-                            <th class="text-right px-4 py-3 border-b border-slate-200">Fecha</th>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left">Bodega</th>
+                            <th class="text-left">Sucursal</th>
+                            <th class="text-right">Cantidad</th>
+                            <th class="text-right">Precio</th>
+                            <th class="text-right">Valor</th>
+                            <th class="text-right">Última Fecha</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-100">
                         {% for item in product.inventories %}
-                        <tr class="odd:bg-white even:bg-slate-50/70">
-                            <td class="px-4 py-3 border-b border-slate-100 font-mono text-sm">{{ item.bodega }}</td>
-                            <td class="px-4 py-3 border-b border-slate-100">{{ item.nombre or 'Sin nombre' }}</td>
-                            <td class="px-4 py-3 border-b border-slate-100 text-right font-semibold">{{ '%.2f'|format(item.cantidad) }}</td>
-                            <td class="px-4 py-3 border-b border-slate-100 text-right">${{ '%.2f'|format(item.precio) }}</td>
-                            <td class="px-4 py-3 border-b border-slate-100 text-right">${{ '%.2f'|format(item.total) }}</td>
-                            <td class="px-4 py-3 border-b border-slate-100 text-right">
-                                {{ item.fecha.strftime('%d/%m/%Y') if item.fecha else 'Sin fecha' }}
+                        <tr class="hover:bg-indigo-50/40 transition-colors">
+                            <td class="font-mono text-sm text-gray-500 font-semibold">{{ item.bodega }}</td>
+                            <td class="font-medium">{{ item.nombre or 'Sin nombre' }}</td>
+                            <td class="text-right font-bold text-gray-800">{{ '%.2f'|format(item.cantidad) }}</td>
+                            <td class="text-right text-gray-600">${{ '%.2f'|format(item.precio) }}</td>
+                            <td class="text-right font-bold text-gray-800">${{ '%.2f'|format(item.total) }}</td>
+                            <td class="text-right text-sm text-gray-500 font-medium">
+                                {{ item.fecha.strftime('%d/%m/%Y') if item.fecha else '—' }}
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
-                    <tfoot>
-                        <tr class="bg-sky-50">
-                            <td colspan="2" class="px-4 py-3 font-semibold text-slate-700">Totales</td>
-                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">{{ '%.2f'|format(product.total_unidades) }}</td>
-                            <td class="px-4 py-3"></td>
-                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">${{ '%.2f'|format(product.total_valor) }}</td>
-                            <td class="px-4 py-3"></td>
+                    <tfoot class="border-t-2 border-gray-100">
+                        <tr class="bg-indigo-50/50">
+                            <td colspan="2" class="font-extrabold text-indigo-900 uppercase text-xs tracking-wider">Total Consolidado</td>
+                            <td class="text-right font-extrabold text-indigo-700 text-lg">{{ '%.2f'|format(product.total_unidades) }}</td>
+                            <td></td>
+                            <td class="text-right font-extrabold text-indigo-700 text-lg">${{ '%.2f'|format(product.total_valor) }}</td>
+                            <td></td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
             {% else %}
-            <div class="stock-empty">
-                El producto existe en el catalogo maestro, pero no tiene inventario visible para las bodegas consultadas en este momento.
+            <div class="p-8">
+                <div class="stock-empty shadow-inner">
+                    <i class="fas fa-box-open text-3xl text-gray-300 mb-3 block"></i>
+                    El producto existe en el catálogo maestro, pero no tiene inventario visible para las bodegas consultadas.
+                </div>
             </div>
             {% endif %}
         </div>
